@@ -19,7 +19,7 @@ shared._combatGuiRefs = {}
 shared._animationDetection = {
     enabled = true,
     autoEscape = false,
-    animationIds = {13927612951}, -- Add more IDs here like: {13927612951, 12345678, 98765432}
+    animationIds = {13927612951, 15128849047}, -- BOTH animation IDs
     highlightDuration = 5,
     detectionRange = 70,
     highlightColor = Color3.fromRGB(255, 165, 0),
@@ -684,6 +684,7 @@ local function updateAnimationHighlights()
     local currentTime = tick()
     local myPos = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") and lp.Character.HumanoidRootPart.Position
     
+    -- Clean up expired highlights
     for playerName, data in pairs(shared._animationDetection.activeHighlights) do
         if currentTime > data.endTime then
             local player = Players:FindFirstChild(playerName)
@@ -695,70 +696,79 @@ local function updateAnimationHighlights()
         end
     end
     
+    -- Update active highlights and check for auto escape
     for playerName, data in pairs(shared._animationDetection.activeHighlights) do
         local player = Players:FindFirstChild(playerName)
         if player and player.Character then
+            -- CREATE HIGHLIGHT FOR ALL PLAYERS (including self)
+            createAnimationHighlight(player)
+            
+            -- AUTO ESCAPE ONLY TRIGGERS FOR OTHER PLAYERS (not self) when they're playing animation
             if shared._animationDetection.autoEscape and player ~= lp and myPos then
                 local targetPos = player.Character:FindFirstChild("HumanoidRootPart") and player.Character.HumanoidRootPart.Position
                 if targetPos then
                     local distance = (myPos - targetPos).Magnitude
                     if distance <= shared._animationDetection.detectionRange then
-                        -- YES: Auto escape turns off teleport first before teleporting to platform
-                        if shared._combatSettings.teleportOn then
-                            shared._combatSettings.teleportOn = false
-                            teleportBtn.Text = "Teleport: Off"
-                            teleportBtn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-                        end
-                        
-                        createSafePlatform()
-                        safePlatformBtn.Text = "Auto Escaping..."
-                        safePlatformBtn.BackgroundColor3 = Color3.fromRGB(200, 100, 0)
-                        
-                        task.wait(0.1)
-                        
-                        local char = lp.Character
-                        if char and char:FindFirstChild("HumanoidRootPart") then
-                            if char.PrimaryPart == nil then
-                                char.PrimaryPart = char.HumanoidRootPart
+                        -- Check if we should trigger escape (not on cooldown)
+                        local currentTime = tick()
+                        if not data.lastEscapeTime or (currentTime - data.lastEscapeTime) > 3 then
+                            data.lastEscapeTime = currentTime
+                            
+                            -- Auto escape turns off teleport first before teleporting to platform
+                            if shared._combatSettings.teleportOn then
+                                shared._combatSettings.teleportOn = false
+                                teleportBtn.Text = "Teleport: Off"
+                                teleportBtn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
                             end
                             
-                            local hrp = char.HumanoidRootPart
+                            createSafePlatform()
+                            safePlatformBtn.Text = "Auto Escaping..."
+                            safePlatformBtn.BackgroundColor3 = Color3.fromRGB(200, 100, 0)
                             
-                            for _, child in pairs(char:GetDescendants()) do
-                                if child:IsA("BodyVelocity") or child:IsA("BodyAngularVelocity") or 
-                                   child:IsA("BodyForce") or child:IsA("BodyThrust") then
-                                    child:Destroy()
+                            task.wait(0.1)
+                            
+                            local char = lp.Character
+                            if char and char:FindFirstChild("HumanoidRootPart") then
+                                if char.PrimaryPart == nil then
+                                    char.PrimaryPart = char.HumanoidRootPart
                                 end
+                                
+                                local hrp = char.HumanoidRootPart
+                                
+                                for _, child in pairs(char:GetDescendants()) do
+                                    if child:IsA("BodyVelocity") or child:IsA("BodyAngularVelocity") or 
+                                       child:IsA("BodyForce") or child:IsA("BodyThrust") then
+                                        child:Destroy()
+                                    end
+                                end
+                                
+                                if hrp:IsA("BasePart") then
+                                    hrp.Velocity = Vector3.new(0, 0, 0)
+                                    hrp.RotVelocity = Vector3.new(0, 0, 0)
+                                    hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                                    hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+                                end
+                                
+                                char:SetPrimaryPartCFrame(CFrame.new(platformPos))
+                                
+                                task.wait(0.05)
+                                if hrp:IsA("BasePart") then
+                                    hrp.Velocity = Vector3.new(0, 0, 0)
+                                    hrp.RotVelocity = Vector3.new(0, 0, 0)
+                                end
+                                
+                                data.endTime = tick() + shared._animationDetection.highlightDuration
+                                
+                                safePlatformBtn.Text = "Auto Escaped!"
+                                safePlatformBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 0)
+                                task.wait(2)
+                                safePlatformBtn.Text = "Teleport to Platform"
+                                safePlatformBtn.BackgroundColor3 = Color3.fromRGB(80, 120, 200)
                             end
-                            
-                            if hrp:IsA("BasePart") then
-                                hrp.Velocity = Vector3.new(0, 0, 0)
-                                hrp.RotVelocity = Vector3.new(0, 0, 0)
-                                hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
-                                hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
-                            end
-                            
-                            char:SetPrimaryPartCFrame(CFrame.new(platformPos))
-                            
-                            task.wait(0.05)
-                            if hrp:IsA("BasePart") then
-                                hrp.Velocity = Vector3.new(0, 0, 0)
-                                hrp.RotVelocity = Vector3.new(0, 0, 0)
-                            end
-                            
-                            data.endTime = tick() + shared._animationDetection.highlightDuration
-                            
-                            safePlatformBtn.Text = "Auto Escaped!"
-                            safePlatformBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 0)
-                            task.wait(2)
-                            safePlatformBtn.Text = "Teleport to Platform"
-                            safePlatformBtn.BackgroundColor3 = Color3.fromRGB(80, 120, 200)
                         end
                     end
                 end
             end
-            
-            createAnimationHighlight(player)
         else
             shared._animationDetection.activeHighlights[playerName] = nil
         end
@@ -784,17 +794,25 @@ local function monitorPlayerAnimations(player)
                 local animId = tonumber(anim.AnimationId:match("%d+"))
                 if animId and table.find(shared._animationDetection.animationIds, animId) then
                     if not lastAnimations[animId] then
-                        shared._animationDetection.activeHighlights[player.Name] = {
-                            endTime = tick() + shared._animationDetection.highlightDuration,
-                            animationId = animId,
-                            firstDetected = tick()
-                        }
+                        -- Initialize active highlight data
+                        if not shared._animationDetection.activeHighlights[player.Name] then
+                            shared._animationDetection.activeHighlights[player.Name] = {
+                                endTime = tick() + shared._animationDetection.highlightDuration,
+                                animationId = animId,
+                                firstDetected = tick()
+                            }
+                        else
+                            -- Update existing highlight
+                            shared._animationDetection.activeHighlights[player.Name].endTime = tick() + shared._animationDetection.highlightDuration
+                            shared._animationDetection.activeHighlights[player.Name].animationId = animId
+                        end
                         lastAnimations[animId] = true
                     end
                 end
             end
         end
         
+        -- Clean up old animations
         for animId, _ in pairs(lastAnimations) do
             local found = false
             for _, track in pairs(animator:GetPlayingAnimationTracks()) do

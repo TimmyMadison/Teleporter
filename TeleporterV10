@@ -19,7 +19,7 @@ shared._combatGuiRefs = {}
 shared._animationDetection = {
     enabled = true,
     autoEscape = false,
-    animationIds = {13927612951},
+    animationIds = {13927612951}, -- Add more IDs here like: {13927612951, 12345678, 98765432}
     highlightDuration = 5,
     detectionRange = 70,
     highlightColor = Color3.fromRGB(255, 165, 0),
@@ -515,30 +515,7 @@ Players.PlayerRemoving:Connect(function(player)
     end
 end)
 
-local animDetectBtn = createButton(mainTab, "Animation Detect: On", Color3.fromRGB(80, 120, 80))
-animDetectBtn.MouseButton1Click:Connect(function()
-    shared._animationDetection.enabled = not shared._animationDetection.enabled
-    animDetectBtn.Text = "Animation Detect: " .. (shared._animationDetection.enabled and "On" or "Off")
-    animDetectBtn.BackgroundColor3 = shared._animationDetection.enabled and Color3.fromRGB(80, 120, 80) or Color3.fromRGB(60, 60, 60)
-    
-    if not shared._animationDetection.enabled then
-        for playerName, _ in pairs(shared._animationDetection.activeHighlights) do
-            local player = Players:FindFirstChild(playerName)
-            if player and player.Character then
-                local hl = player.Character:FindFirstChild("ANIM_HL")
-                if hl then hl:Destroy() end
-            end
-        end
-        shared._animationDetection.activeHighlights = {}
-    end
-end)
-
-local autoEscapeBtn = createButton(mainTab, "Auto Escape: Off", Color3.fromRGB(120, 80, 80))
-autoEscapeBtn.MouseButton1Click:Connect(function()
-    shared._animationDetection.autoEscape = not shared._animationDetection.autoEscape
-    autoEscapeBtn.Text = "Auto Escape: " .. (shared._animationDetection.autoEscape and "On" or "Off")
-    autoEscapeBtn.BackgroundColor3 = shared._animationDetection.autoEscape and Color3.fromRGB(120, 80, 80) or Color3.fromRGB(60, 60, 60)
-end)
+-- Moved to Settings tab
 
 createToggle(settingsTab, "Team Check", "teamCheck")
 createToggle(settingsTab, "Friend Check", "friendCheck")
@@ -547,6 +524,32 @@ createToggle(settingsTab, "Dodge", "dodge")
 createToggle(settingsTab, "Lock Target", "lockTarget")
 createToggle(settingsTab, "One Time Kill", "oneTimeKill")
 createToggle(settingsTab, "Lowest Health", "lowestHealth")
+
+-- Add animation detection toggles to Settings tab
+local omniDetectBtn = createButton(settingsTab, "Omni Detector: On", Color3.fromRGB(80, 120, 80))
+local escapeOmniBtn = createButton(settingsTab, "Escape Omni: Off", Color3.fromRGB(120, 80, 80))
+
+omniDetectBtn.MouseButton1Click:Connect(function()
+    shared._animationDetection.enabled = not shared._animationDetection.enabled
+    omniDetectBtn.Text = "Omni Detector: " .. (shared._animationDetection.enabled and "On" or "Off")
+    omniDetectBtn.BackgroundColor3 = shared._animationDetection.enabled and Color3.fromRGB(80, 120, 80) or Color3.fromRGB(60, 60, 60)
+    
+    if not shared._animationDetection.enabled then
+        for playerName, data in pairs(shared._animationDetection.activeHighlights) do
+            local player = Players:FindFirstChild(playerName)
+            if player and player.Character then
+                removeAnimationHighlight(player)
+            end
+        end
+        shared._animationDetection.activeHighlights = {}
+    end
+end)
+
+escapeOmniBtn.MouseButton1Click:Connect(function()
+    shared._animationDetection.autoEscape = not shared._animationDetection.autoEscape
+    escapeOmniBtn.Text = "Escape Omni: " .. (shared._animationDetection.autoEscape and "On" or "Off")
+    escapeOmniBtn.BackgroundColor3 = shared._animationDetection.autoEscape and Color3.fromRGB(120, 80, 80) or Color3.fromRGB(60, 60, 60)
+end)
 
 initializeToggleButtons()
 
@@ -629,18 +632,20 @@ end)
 local function createAnimationHighlight(player)
     if not player.Character then return nil end
     
-    local hl = player.Character:FindFirstChild("ANIM_HL")
-    if not hl then
-        hl = Instance.new("Highlight")
-        hl.Name = "ANIM_HL"
-        hl.Parent = player.Character
-        hl.FillTransparency = 0.3
-        hl.OutlineTransparency = 0
-        hl.FillColor = shared._animationDetection.highlightColor
-        hl.OutlineColor = shared._animationDetection.highlightOutline
-        hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-    end
+    -- Remove existing highlight first
+    removeAnimationHighlight(player)
     
+    -- Create new highlight
+    local hl = Instance.new("Highlight")
+    hl.Name = "ANIM_HL"
+    hl.Parent = player.Character
+    hl.FillTransparency = 0.3
+    hl.OutlineTransparency = 0
+    hl.FillColor = shared._animationDetection.highlightColor
+    hl.OutlineColor = shared._animationDetection.highlightOutline
+    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    
+    -- Create warning emoji billboard
     local billboard = Instance.new("BillboardGui")
     billboard.Name = "ANIM_WARNING"
     billboard.Size = UDim2.new(0, 50, 0, 50)
@@ -698,15 +703,16 @@ local function updateAnimationHighlights()
                 if targetPos then
                     local distance = (myPos - targetPos).Magnitude
                     if distance <= shared._animationDetection.detectionRange then
-                        createSafePlatform()
-                        safePlatformBtn.Text = "Auto Escaping..."
-                        safePlatformBtn.BackgroundColor3 = Color3.fromRGB(200, 100, 0)
-                        
+                        -- YES: Auto escape turns off teleport first before teleporting to platform
                         if shared._combatSettings.teleportOn then
                             shared._combatSettings.teleportOn = false
                             teleportBtn.Text = "Teleport: Off"
                             teleportBtn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
                         end
+                        
+                        createSafePlatform()
+                        safePlatformBtn.Text = "Auto Escaping..."
+                        safePlatformBtn.BackgroundColor3 = Color3.fromRGB(200, 100, 0)
                         
                         task.wait(0.1)
                         

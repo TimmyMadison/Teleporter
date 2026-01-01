@@ -1,5 +1,3 @@
--- COMPLETE TELEPORTER SCRIPT BY KRYSAN (No Animation Tab)
-
 local Players = game:GetService("Players")
 local lp = Players.LocalPlayer
 
@@ -18,17 +16,17 @@ shared._combatSettings = shared._combatSettings or {
 }
 shared._combatGuiRefs = {}
 
--- PASSIVE ANIMATION DETECTION (No GUI)
 shared._animationDetection = {
     enabled = true,
+    autoEscape = false,
     animationIds = {13927612951},
     highlightDuration = 5,
+    detectionRange = 70,
     highlightColor = Color3.fromRGB(255, 165, 0),
     highlightOutline = Color3.fromRGB(200, 130, 0),
     activeHighlights = {}
 }
 
--- GUI CREATION
 local gui = Instance.new("ScreenGui", game.CoreGui)
 gui.Name = "CombatGUI"
 gui.ResetOnSpawn = false
@@ -103,7 +101,6 @@ local function createTab(name)
     return tab
 end
 
--- ONLY Main and Settings tabs (NO Animation tab)
 local mainTab = createTab("Main")
 local settingsTab = createTab("Settings")
 mainTab.Visible = true
@@ -151,6 +148,109 @@ local safePlatformCreated = false
 local safePlatformPart = nil
 local platformPos = Vector3.new(0, -494.5, 0)
 
+local function isCameraStuck()
+    local camera = workspace.CurrentCamera
+    local player = game.Players.LocalPlayer
+    local char = player.Character
+    
+    if not char then return true, "No Character" end
+    
+    if camera.CameraSubject == nil or camera.CameraSubject.Parent == nil then
+        return true, "No CameraSubject"
+    end
+    
+    if not (camera.CameraSubject:IsA("Humanoid") and camera.CameraSubject.Parent == char) then
+        return true, "Wrong CameraSubject"
+    end
+    
+    if camera.CameraType == Enum.CameraType.Scriptable or camera.CameraType == Enum.CameraType.Fixed then
+        return true, "Locked CameraType"
+    end
+    
+    if camera.Parent ~= workspace then
+        return true, "Wrong Parent"
+    end
+    
+    return false, nil
+end
+
+local function fixCameraCompletely()
+    local camera = workspace.CurrentCamera
+    local player = game.Players.LocalPlayer
+    local char = player.Character
+    
+    if not char or not char:FindFirstChild("Humanoid") then
+        return false, "No Character"
+    end
+    
+    local maxAttempts = 2
+    local attempt = 0
+    local fixed = false
+    local lastReason = ""
+    
+    local initialStuck, initialReason = isCameraStuck()
+    if not initialStuck then
+        return true, "Camera already OK"
+    end
+    
+    while attempt < maxAttempts do
+        attempt += 1
+        
+        local stuck, reason = isCameraStuck()
+        if not stuck then
+            fixed = true
+            break
+        end
+        
+        lastReason = reason
+        
+        if attempt == 1 then
+            camera.CameraType = Enum.CameraType.Custom
+            if char:FindFirstChild("HumanoidRootPart") then
+                camera.CFrame = CFrame.new(char.HumanoidRootPart.Position + Vector3.new(0, 5, -10), char.HumanoidRootPart.Position)
+            end
+            camera.CameraSubject = char.Humanoid
+            task.wait(0.2)
+        else
+            camera.CameraType = Enum.CameraType.Custom
+            camera.CameraSubject = nil
+            task.wait(0.1)
+            camera.CameraSubject = char.Humanoid
+            camera.CameraType = Enum.CameraType.Follow
+            task.wait(0.2)
+        end
+        
+        task.wait(0.2)
+    end
+    
+    local finalStuck, finalReason = isCameraStuck()
+    if not finalStuck then
+        fixed = true
+    else
+        lastReason = finalReason
+    end
+    
+    return fixed, lastReason
+end
+
+local function createSafePlatform()
+    if not safePlatformCreated then
+        safePlatformPart = Instance.new("Part")
+        safePlatformPart.Name = "SafePlatform_Lio"
+        safePlatformPart.Size = Vector3.new(1000, 2, 1000)
+        safePlatformPart.Position = Vector3.new(0, -500, 0)
+        safePlatformPart.Anchored = true
+        safePlatformPart.CanCollide = true
+        safePlatformPart.Transparency = 0.5
+        safePlatformPart.Color = Color3.fromRGB(0, 170, 255)
+        safePlatformPart.Parent = workspace
+        
+        safePlatformCreated = true
+        return true
+    end
+    return false
+end
+
 safePlatformBtn.MouseButton1Click:Connect(function()
     if not safePlatformCreated then
         safePlatformPart = Instance.new("Part")
@@ -187,22 +287,59 @@ safePlatformBtn.MouseButton1Click:Connect(function()
             char.PrimaryPart = char.HumanoidRootPart
         end
         
-        safePlatformBtn.Text = "Fixing Camera..."
+        safePlatformBtn.Text = "Checking Camera..."
         safePlatformBtn.BackgroundColor3 = Color3.fromRGB(200, 100, 0)
         
-        local cameraFixed, reason = fixCameraCompletely()
+        local isStuck, reason = isCameraStuck()
         
-        char:SetPrimaryPartCFrame(CFrame.new(platformPos))
+        local hrp = char.HumanoidRootPart
         
-        task.wait(0.3)
-        local cameraFixedAfter, reasonAfter = fixCameraCompletely()
+        for _, child in pairs(char:GetDescendants()) do
+            if child:IsA("BodyVelocity") or child:IsA("BodyAngularVelocity") or 
+               child:IsA("BodyForce") or child:IsA("BodyThrust") then
+                child:Destroy()
+            end
+        end
         
-        if cameraFixed or cameraFixedAfter then
-            safePlatformBtn.Text = "Fixed Camera & Teleported!"
-            safePlatformBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 0)
+        if hrp:IsA("BasePart") then
+            hrp.Velocity = Vector3.new(0, 0, 0)
+            hrp.RotVelocity = Vector3.new(0, 0, 0)
+            hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+            hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+        end
+        
+        if isStuck then
+            safePlatformBtn.Text = "Fixing Camera..."
+            local cameraFixed, fixReason = fixCameraCompletely()
+            
+            char:SetPrimaryPartCFrame(CFrame.new(platformPos))
+            
+            task.wait(0.05)
+            if hrp:IsA("BasePart") then
+                hrp.Velocity = Vector3.new(0, 0, 0)
+                hrp.RotVelocity = Vector3.new(0, 0, 0)
+            end
+            
+            task.wait(0.2)
+            
+            if cameraFixed then
+                safePlatformBtn.Text = "Fixed Camera & Teleported!"
+                safePlatformBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 0)
+            else
+                safePlatformBtn.Text = "Teleported (Camera may be stuck)"
+                safePlatformBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 0)
+            end
         else
-            safePlatformBtn.Text = "Teleported (Camera Issue)"
-            safePlatformBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 0)
+            char:SetPrimaryPartCFrame(CFrame.new(platformPos))
+            
+            task.wait(0.05)
+            if hrp:IsA("BasePart") then
+                hrp.Velocity = Vector3.new(0, 0, 0)
+                hrp.RotVelocity = Vector3.new(0, 0, 0)
+            end
+            
+            safePlatformBtn.Text = "Teleported Successfully!"
+            safePlatformBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 0)
         end
     else
         safePlatformBtn.Text = "No Character!"
@@ -261,6 +398,12 @@ goToFriendBtn.MouseButton1Click:Connect(function()
             char.PrimaryPart = char.HumanoidRootPart
         end
         
+        local hrp = char.HumanoidRootPart
+        if hrp:IsA("BasePart") then
+            hrp.Velocity = Vector3.new(0, 0, 0)
+            hrp.RotVelocity = Vector3.new(0, 0, 0)
+        end
+        
         local cameraWasFixed, reason = fixCameraCompletely()
         
         local friendPos = selectedFriend.Character.HumanoidRootPart.Position
@@ -268,6 +411,12 @@ goToFriendBtn.MouseButton1Click:Connect(function()
         local targetPos = friendPos + offset
         
         char:SetPrimaryPartCFrame(CFrame.new(targetPos))
+        
+        task.wait(0.05)
+        if hrp:IsA("BasePart") then
+            hrp.Velocity = Vector3.new(0, 0, 0)
+            hrp.RotVelocity = Vector3.new(0, 0, 0)
+        end
         
         task.wait(0.2)
         local cameraFixedAfter, reasonAfter = fixCameraCompletely()
@@ -305,7 +454,6 @@ targeterBox.FocusLost:Connect(function()
     shared._combatSettings.targetName = targeterBox.Text
 end)
 
--- Ignore list input (ADDED BACK)
 shared._combatSettings.ignoreNames = shared._combatSettings.ignoreNames or {}
 local ignoredNames = shared._combatSettings.ignoreNames
 
@@ -367,7 +515,6 @@ Players.PlayerRemoving:Connect(function(player)
     end
 end)
 
--- Animation detect toggle MOVED HERE (after ignores input)
 local animDetectBtn = createButton(mainTab, "Animation Detect: On", Color3.fromRGB(80, 120, 80))
 animDetectBtn.MouseButton1Click:Connect(function()
     shared._animationDetection.enabled = not shared._animationDetection.enabled
@@ -386,86 +533,13 @@ animDetectBtn.MouseButton1Click:Connect(function()
     end
 end)
 
-local function isCameraStuck()
-    local camera = workspace.CurrentCamera
-    local player = game.Players.LocalPlayer
-    local char = player.Character
-    
-    if camera.CameraSubject == nil or camera.CameraSubject.Parent == nil then
-        return true, "No CameraSubject"
-    end
-    
-    if not (camera.CameraSubject:IsA("Humanoid") and camera.CameraSubject.Parent == char) then
-        return true, "Wrong CameraSubject"
-    end
-    
-    if camera.CameraType == Enum.CameraType.Scriptable or camera.CameraType == Enum.CameraType.Fixed then
-        return true, "Locked CameraType"
-    end
-    
-    if camera.Parent ~= workspace then
-        return true, "Wrong Parent"
-    end
-    
-    return false, nil
-end
+local autoEscapeBtn = createButton(mainTab, "Auto Escape: Off", Color3.fromRGB(120, 80, 80))
+autoEscapeBtn.MouseButton1Click:Connect(function()
+    shared._animationDetection.autoEscape = not shared._animationDetection.autoEscape
+    autoEscapeBtn.Text = "Auto Escape: " .. (shared._animationDetection.autoEscape and "On" or "Off")
+    autoEscapeBtn.BackgroundColor3 = shared._animationDetection.autoEscape and Color3.fromRGB(120, 80, 80) or Color3.fromRGB(60, 60, 60)
+end)
 
-local function fixCameraCompletely()
-    local camera = workspace.CurrentCamera
-    local player = game.Players.LocalPlayer
-    
-    local maxAttempts = 5
-    local attempt = 0
-    local fixed = false
-    local lastReason = ""
-    
-    while attempt < maxAttempts do
-        attempt += 1
-        local stuck, reason = isCameraStuck()
-        
-        if not stuck then
-            fixed = true
-            break
-        end
-        
-        lastReason = reason
-        
-        if attempt == 1 then
-            camera.CameraType = Enum.CameraType.Custom
-            camera.CFrame = CFrame.new()
-            if player.Character and player.Character:FindFirstChild("Humanoid") then
-                camera.CameraSubject = player.Character.Humanoid
-            end
-            task.wait(0.1)
-            camera.CameraType = Enum.CameraType.Follow
-        elseif attempt == 2 then
-            camera.CameraType = Enum.CameraType.Custom
-            task.wait(0.05)
-            camera.CameraType = Enum.CameraType.Follow
-            task.wait(0.05)
-            camera.CameraType = Enum.CameraType.Custom
-        elseif attempt == 3 then
-            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                camera.CFrame = CFrame.new(player.Character.HumanoidRootPart.Position + Vector3.new(0, 5, -10), player.Character.HumanoidRootPart.Position)
-            end
-            camera.CameraType = Enum.CameraType.Custom
-        else
-            camera.CameraType = Enum.CameraType.Custom
-            camera.CameraSubject = nil
-            task.wait(0.1)
-            if player.Character and player.Character:FindFirstChild("Humanoid") then
-                camera.CameraSubject = player.Character.Humanoid
-                camera.CameraType = Enum.CameraType.Follow
-            end
-        end
-        
-        task.wait(0.1)
-    end
-    
-    return fixed, lastReason
-end
-
--- Settings tab toggles only
 createToggle(settingsTab, "Team Check", "teamCheck")
 createToggle(settingsTab, "Friend Check", "friendCheck")
 createToggle(settingsTab, "Ragdoll Check", "ragdollCheck")
@@ -552,9 +626,8 @@ reopenBtn.MouseButton1Click:Connect(function()
     reopenBtn.Visible = false
 end)
 
--- PASSIVE ANIMATION DETECTION SYSTEM (NO GUI)
 local function createAnimationHighlight(player)
-    if not player.Character then return end
+    if not player.Character then return nil end
     
     local hl = player.Character:FindFirstChild("ANIM_HL")
     if not hl then
@@ -568,21 +641,43 @@ local function createAnimationHighlight(player)
         hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
     end
     
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "ANIM_WARNING"
+    billboard.Size = UDim2.new(0, 50, 0, 50)
+    billboard.StudsOffset = Vector3.new(0, 3.5, 0)
+    billboard.AlwaysOnTop = true
+    billboard.MaxDistance = 100
+    billboard.Parent = player.Character
+    
+    local emoji = Instance.new("TextLabel", billboard)
+    emoji.Size = UDim2.new(1, 0, 1, 0)
+    emoji.Text = "⚠️"
+    emoji.TextScaled = true
+    emoji.BackgroundTransparency = 1
+    emoji.TextColor3 = Color3.fromRGB(255, 165, 0)
+    emoji.Font = Enum.Font.SourceSansBold
+    
     return hl
 end
 
 local function removeAnimationHighlight(player)
-    if player.Character then
+    if player and player.Character then
         local hl = player.Character:FindFirstChild("ANIM_HL")
         if hl then hl:Destroy() end
+        
+        local warning = player.Character:FindFirstChild("ANIM_WARNING")
+        if warning then warning:Destroy() end
     end
-    shared._animationDetection.activeHighlights[player.Name] = nil
+    if player then
+        shared._animationDetection.activeHighlights[player.Name] = nil
+    end
 end
 
 local function updateAnimationHighlights()
     if not shared._animationDetection.enabled then return end
     
     local currentTime = tick()
+    local myPos = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") and lp.Character.HumanoidRootPart.Position
     
     for playerName, data in pairs(shared._animationDetection.activeHighlights) do
         if currentTime > data.endTime then
@@ -598,6 +693,65 @@ local function updateAnimationHighlights()
     for playerName, data in pairs(shared._animationDetection.activeHighlights) do
         local player = Players:FindFirstChild(playerName)
         if player and player.Character then
+            if shared._animationDetection.autoEscape and player ~= lp and myPos then
+                local targetPos = player.Character:FindFirstChild("HumanoidRootPart") and player.Character.HumanoidRootPart.Position
+                if targetPos then
+                    local distance = (myPos - targetPos).Magnitude
+                    if distance <= shared._animationDetection.detectionRange then
+                        createSafePlatform()
+                        safePlatformBtn.Text = "Auto Escaping..."
+                        safePlatformBtn.BackgroundColor3 = Color3.fromRGB(200, 100, 0)
+                        
+                        if shared._combatSettings.teleportOn then
+                            shared._combatSettings.teleportOn = false
+                            teleportBtn.Text = "Teleport: Off"
+                            teleportBtn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+                        end
+                        
+                        task.wait(0.1)
+                        
+                        local char = lp.Character
+                        if char and char:FindFirstChild("HumanoidRootPart") then
+                            if char.PrimaryPart == nil then
+                                char.PrimaryPart = char.HumanoidRootPart
+                            end
+                            
+                            local hrp = char.HumanoidRootPart
+                            
+                            for _, child in pairs(char:GetDescendants()) do
+                                if child:IsA("BodyVelocity") or child:IsA("BodyAngularVelocity") or 
+                                   child:IsA("BodyForce") or child:IsA("BodyThrust") then
+                                    child:Destroy()
+                                end
+                            end
+                            
+                            if hrp:IsA("BasePart") then
+                                hrp.Velocity = Vector3.new(0, 0, 0)
+                                hrp.RotVelocity = Vector3.new(0, 0, 0)
+                                hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                                hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+                            end
+                            
+                            char:SetPrimaryPartCFrame(CFrame.new(platformPos))
+                            
+                            task.wait(0.05)
+                            if hrp:IsA("BasePart") then
+                                hrp.Velocity = Vector3.new(0, 0, 0)
+                                hrp.RotVelocity = Vector3.new(0, 0, 0)
+                            end
+                            
+                            data.endTime = tick() + shared._animationDetection.highlightDuration
+                            
+                            safePlatformBtn.Text = "Auto Escaped!"
+                            safePlatformBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 0)
+                            task.wait(2)
+                            safePlatformBtn.Text = "Teleport to Platform"
+                            safePlatformBtn.BackgroundColor3 = Color3.fromRGB(80, 120, 200)
+                        end
+                    end
+                end
+            end
+            
             createAnimationHighlight(player)
         else
             shared._animationDetection.activeHighlights[playerName] = nil
@@ -626,7 +780,8 @@ local function monitorPlayerAnimations(player)
                     if not lastAnimations[animId] then
                         shared._animationDetection.activeHighlights[player.Name] = {
                             endTime = tick() + shared._animationDetection.highlightDuration,
-                            animationId = animId
+                            animationId = animId,
+                            firstDetected = tick()
                         }
                         lastAnimations[animId] = true
                     end
@@ -671,21 +826,15 @@ local function monitorPlayerAnimations(player)
     end)
 end
 
--- Initialize animation monitoring for all players
 for _, player in ipairs(Players:GetPlayers()) do
-    if player ~= lp then
-        monitorPlayerAnimations(player)
-    end
+    monitorPlayerAnimations(player)
 end
 
 Players.PlayerAdded:Connect(function(player)
     task.wait(1)
-    if player ~= lp then
-        monitorPlayerAnimations(player)
-    end
+    monitorPlayerAnimations(player)
 end)
 
--- COMBAT LOGIC
 local RunService = game:GetService("RunService")
 
 local friendCache = {}
@@ -943,7 +1092,6 @@ local function checkNoTargets()
     return false
 end
 
--- MAIN LOOP
 RunService.Heartbeat:Connect(function()
     updateAnimationHighlights()
     
@@ -1052,13 +1200,9 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
--- Initialize animation monitoring
 task.wait(1)
 for _, player in ipairs(Players:GetPlayers()) do
-    if player ~= lp then
-        monitorPlayerAnimations(player)
-    end
+    monitorPlayerAnimations(player)
 end
 
--- Initialize ignore list UI
 updateIgnoreUI()

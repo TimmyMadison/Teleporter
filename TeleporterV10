@@ -19,7 +19,7 @@ shared._combatGuiRefs = {}
 shared._animationDetection = {
     enabled = true,
     autoEscape = false,
-    animationIds = {13927612951, 15128849047}, -- BOTH animation IDs
+    animationIds = {13927612951, 15128849047},
     highlightDuration = 5,
     detectionRange = 70,
     highlightColor = Color3.fromRGB(255, 165, 0),
@@ -630,49 +630,77 @@ reopenBtn.MouseButton1Click:Connect(function()
 end)
 
 local function createAnimationHighlight(player)
-    if not player.Character then return nil end
+    if not player or not player.Character then return nil end
+    
+    -- Safety check
+    if not player.Character:FindFirstChild("HumanoidRootPart") then return nil end
     
     -- Remove existing highlight first
     removeAnimationHighlight(player)
     
-    -- Create new highlight
-    local hl = Instance.new("Highlight")
-    hl.Name = "ANIM_HL"
-    hl.Parent = player.Character
-    hl.FillTransparency = 0.3
-    hl.OutlineTransparency = 0
-    hl.FillColor = shared._animationDetection.highlightColor
-    hl.OutlineColor = shared._animationDetection.highlightOutline
-    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    -- Create new highlight with error handling
+    local success, hl = pcall(function()
+        local highlight = Instance.new("Highlight")
+        highlight.Name = "ANIM_HL"
+        highlight.Parent = player.Character
+        highlight.FillTransparency = 0.3
+        highlight.OutlineTransparency = 0
+        highlight.FillColor = shared._animationDetection.highlightColor
+        highlight.OutlineColor = shared._animationDetection.highlightOutline
+        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        
+        return highlight
+    end)
     
-    -- Create warning emoji billboard
-    local billboard = Instance.new("BillboardGui")
-    billboard.Name = "ANIM_WARNING"
-    billboard.Size = UDim2.new(0, 50, 0, 50)
-    billboard.StudsOffset = Vector3.new(0, 3.5, 0)
-    billboard.AlwaysOnTop = true
-    billboard.MaxDistance = 100
-    billboard.Parent = player.Character
+    if not success then
+        warn("Failed to create highlight for", player.Name)
+        return nil
+    end
     
-    local emoji = Instance.new("TextLabel", billboard)
-    emoji.Size = UDim2.new(1, 0, 1, 0)
-    emoji.Text = "⚠️"
-    emoji.TextScaled = true
-    emoji.BackgroundTransparency = 1
-    emoji.TextColor3 = Color3.fromRGB(255, 165, 0)
-    emoji.Font = Enum.Font.SourceSansBold
+    -- Create warning emoji billboard with error handling
+    local success2, billboard = pcall(function()
+        local bg = Instance.new("BillboardGui")
+        bg.Name = "ANIM_WARNING"
+        bg.Size = UDim2.new(0, 50, 0, 50)
+        bg.StudsOffset = Vector3.new(0, 3.5, 0)
+        bg.AlwaysOnTop = true
+        bg.MaxDistance = 100
+        bg.Parent = player.Character
+        
+        local emoji = Instance.new("TextLabel")
+        emoji.Size = UDim2.new(1, 0, 1, 0)
+        emoji.Text = "⚠️"
+        emoji.TextScaled = true
+        emoji.BackgroundTransparency = 1
+        emoji.TextColor3 = Color3.fromRGB(255, 165, 0)
+        emoji.Font = Enum.Font.SourceSansBold
+        emoji.Parent = bg
+        
+        return bg
+    end)
+    
+    if not success2 then
+        warn("Failed to create billboard for", player.Name)
+    end
     
     return hl
 end
 
 local function removeAnimationHighlight(player)
-    if player and player.Character then
+    if not player then return end
+    
+    if player.Character then
         local hl = player.Character:FindFirstChild("ANIM_HL")
-        if hl then hl:Destroy() end
+        if hl then 
+            pcall(function() hl:Destroy() end)
+        end
         
         local warning = player.Character:FindFirstChild("ANIM_WARNING")
-        if warning then warning:Destroy() end
+        if warning then 
+            pcall(function() warning:Destroy() end)
+        end
     end
+    
     if player then
         shared._animationDetection.activeHighlights[player.Name] = nil
     end
@@ -699,13 +727,13 @@ local function updateAnimationHighlights()
     -- Update active highlights and check for auto escape
     for playerName, data in pairs(shared._animationDetection.activeHighlights) do
         local player = Players:FindFirstChild(playerName)
-        if player and player.Character then
+        if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
             -- CREATE HIGHLIGHT FOR ALL PLAYERS (including self)
             createAnimationHighlight(player)
             
             -- AUTO ESCAPE ONLY TRIGGERS FOR OTHER PLAYERS (not self) when they're playing animation
             if shared._animationDetection.autoEscape and player ~= lp and myPos then
-                local targetPos = player.Character:FindFirstChild("HumanoidRootPart") and player.Character.HumanoidRootPart.Position
+                local targetPos = player.Character.HumanoidRootPart.Position
                 if targetPos then
                     local distance = (myPos - targetPos).Magnitude
                     if distance <= shared._animationDetection.detectionRange then
@@ -722,6 +750,7 @@ local function updateAnimationHighlights()
                             end
                             
                             createSafePlatform()
+                            local originalText = safePlatformBtn.Text
                             safePlatformBtn.Text = "Auto Escaping..."
                             safePlatformBtn.BackgroundColor3 = Color3.fromRGB(200, 100, 0)
                             
@@ -738,7 +767,7 @@ local function updateAnimationHighlights()
                                 for _, child in pairs(char:GetDescendants()) do
                                     if child:IsA("BodyVelocity") or child:IsA("BodyAngularVelocity") or 
                                        child:IsA("BodyForce") or child:IsA("BodyThrust") then
-                                        child:Destroy()
+                                        pcall(function() child:Destroy() end)
                                     end
                                 end
                                 
@@ -762,7 +791,7 @@ local function updateAnimationHighlights()
                                 safePlatformBtn.Text = "Auto Escaped!"
                                 safePlatformBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 0)
                                 task.wait(2)
-                                safePlatformBtn.Text = "Teleport to Platform"
+                                safePlatformBtn.Text = originalText
                                 safePlatformBtn.BackgroundColor3 = Color3.fromRGB(80, 120, 200)
                             end
                         end
@@ -780,7 +809,7 @@ local function monitorPlayerAnimations(player)
     local lastAnimations = {}
     
     local function checkAnimations()
-        if not player.Character then return end
+        if not player or not player.Character then return end
         
         local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
         if not humanoid then return end
@@ -1103,6 +1132,8 @@ local function selectTarget()
     end
 end
 
+-- REMOVED: No auto re-enable when targets appear
+-- We only disable, never re-enable automatically
 local function checkNoTargets()
     if shared._combatSettings.teleportOn and not manualOff then
         if not hasValidTargets() then
@@ -1147,12 +1178,8 @@ RunService.Heartbeat:Connect(function()
         end  
     end  
 
-    if autoDisabled and not ragdoll and not dead and not manualOff then  
-        if teleportStatusReason then
-            teleportStatusReason = nil
-            updateTeleportButton()
-        end
-    end  
+    -- REMOVED: No auto re-enable when ragdoll/dead status changes
+    -- User must manually turn teleport back on
 
     if checkNoTargets() then
         currentTarget = nil
@@ -1160,10 +1187,8 @@ RunService.Heartbeat:Connect(function()
         return
     end
     
-    if teleportStatusReason == "No Target" and hasValidTargets() then
-        teleportStatusReason = nil
-        updateTeleportButton()
-    end
+    -- REMOVED: No auto clearing of "No Target" status
+    -- Status stays until user manually clicks button again
 
     if shared._combatSettings.teleportOn and not manualOff and hasValidTargets() then  
         if not trackedTarget then  
@@ -1230,3 +1255,6 @@ for _, player in ipairs(Players:GetPlayers()) do
 end
 
 updateIgnoreUI()
+
+print("Teleporter by Krysan loaded successfully!")
+print("Animation IDs:", table.concat(shared._animationDetection.animationIds, ", "))

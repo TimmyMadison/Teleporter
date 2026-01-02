@@ -236,7 +236,7 @@ local function createSafePlatform()
     return false
 end
 
-local function fixCameraSubject()
+local function checkAndFixCamera()
     local camera = workspace.CurrentCamera
     local char = lp.Character
     
@@ -245,16 +245,56 @@ local function fixCameraSubject()
     local humanoid = char:FindFirstChildOfClass("Humanoid")
     if not humanoid then return false end
     
-    -- Check if camera is following wrong subject
-    if camera.CameraSubject == nil or camera.CameraSubject.Parent == nil then
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return false end
+    
+    local fixedSomething = false
+    
+    -- 1. Fix CameraSubject if wrong
+    local currentSubject = camera.CameraSubject
+    
+    if currentSubject == nil or currentSubject.Parent == nil then
         camera.CameraSubject = humanoid
-        return true
-    elseif not (camera.CameraSubject:IsA("Humanoid") and camera.CameraSubject.Parent == char) then
+        fixedSomething = true
+    elseif not (currentSubject:IsA("Humanoid") and currentSubject.Parent == char) then
         camera.CameraSubject = humanoid
-        return true
+        fixedSomething = true
     end
     
-    return false
+    -- 2. Fix Camera CFrame/Position if it's stuck looking at wrong place
+    -- Check if camera is too far from character
+    local cameraDistance = (camera.CFrame.Position - hrp.Position).Magnitude
+    if cameraDistance > 50 then  -- Camera is more than 50 studs away
+        -- Reset camera to behind character
+        local lookAt = hrp.Position + Vector3.new(0, 3, 0)
+        local offset = Vector3.new(0, 3, -10)  -- Standard 3rd person offset
+        local newPosition = lookAt + offset
+        
+        camera.CFrame = CFrame.new(newPosition, lookAt)
+        fixedSomething = true
+    end
+    
+    -- 3. Check if camera is looking at sky/ground/weird angle
+    local cameraLook = camera.CFrame.LookVector
+    local upVector = Vector3.new(0, 1, 0)
+    local angle = math.acos(cameraLook:Dot(upVector))
+    
+    if angle < math.rad(10) or angle > math.rad(170) then  -- Looking straight up/down
+        -- Reset to normal angle
+        local lookAt = hrp.Position + Vector3.new(0, 3, 0)
+        local offset = Vector3.new(0, 3, -10)
+        local newPosition = lookAt + offset
+        
+        camera.CFrame = CFrame.new(newPosition, lookAt)
+        fixedSomething = true
+    end
+    
+    return fixedSomething
+end
+
+local function scheduleCameraFix(delay)
+    task.wait(delay)
+    checkAndFixCamera()
 end
 
 safePlatformBtn.MouseButton1Click:Connect(function()
@@ -320,7 +360,7 @@ safePlatformBtn.MouseButton1Click:Connect(function()
             hrp.RotVelocity = Vector3.new(0, 0, 0)
         end
         
-        fixCameraSubject()
+        task.spawn(scheduleCameraFix, 2)
         
         safePlatformBtn.Text = "Teleported Successfully!"
         safePlatformBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 0)
@@ -399,7 +439,7 @@ goToFriendBtn.MouseButton1Click:Connect(function()
             hrp.RotVelocity = Vector3.new(0, 0, 0)
         end
         
-        fixCameraSubject()
+        task.spawn(scheduleCameraFix, 2)
         
         goToFriendBtn.Text = "Teleported to " .. selectedFriend.Name .. " (" .. currentFriendIndex .. "/" .. #friendList .. ")"
         goToFriendBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
@@ -995,7 +1035,7 @@ local function updateAnimationHighlights()
         
         for playerName, data in pairs(shared._animationDetection.activeHighlights) do
             local player = Players:FindFirstChild(playerName)
-            if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            if player and player ~= lp and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
                 local targetPos = player.Character.HumanoidRootPart.Position
                 local distance = (myPos - targetPos).Magnitude
                 
@@ -1029,7 +1069,7 @@ local function updateAnimationHighlights()
                             
                             data.endTime = tick() + shared._animationDetection.highlightDuration
                             
-                            fixCameraSubject()
+                            task.spawn(scheduleCameraFix, 2)
                             
                             safePlatformBtn.Text = "Auto Escaped!"
                             safePlatformBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 0)

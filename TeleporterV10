@@ -1,5 +1,6 @@
 local Players = game:GetService("Players")
 local lp = Players.LocalPlayer
+local RunService = game:GetService("RunService")
 
 shared._combatSettings = shared._combatSettings or {
     teleportOn = false,
@@ -15,7 +16,6 @@ shared._combatSettings = shared._combatSettings or {
     targetName = "",
 }
 shared._combatGuiRefs = {}
-
 shared._animationDetection = {
     enabled = true,
     autoEscape = false,
@@ -26,6 +26,7 @@ shared._animationDetection = {
     highlightOutline = Color3.fromRGB(200, 130, 0),
     activeHighlights = {}
 }
+shared._combatSettings.ignoreNames = shared._combatSettings.ignoreNames or {}
 
 local gui = Instance.new("ScreenGui", game.CoreGui)
 gui.Name = "CombatGUI"
@@ -140,6 +141,81 @@ local function initializeToggleButtons()
     end
 end
 
+-- Animation highlight functions
+local function removeAnimationHighlight(player)
+    if not player then return end
+    
+    if player.Character then
+        local hl = player.Character:FindFirstChild("ANIM_HL")
+        if hl then 
+            pcall(function() hl:Destroy() end)
+        end
+        
+        local warning = player.Character:FindFirstChild("ANIM_WARNING")
+        if warning then 
+            pcall(function() warning:Destroy() end)
+        end
+    end
+    
+    if player then
+        shared._animationDetection.activeHighlights[player.Name] = nil
+    end
+end
+
+local function createAnimationHighlight(player)
+    if not player or not player.Character then return nil end
+    
+    if not player.Character:FindFirstChild("HumanoidRootPart") then return nil end
+    
+    removeAnimationHighlight(player)
+    
+    local success, hl = pcall(function()
+        local highlight = Instance.new("Highlight")
+        highlight.Name = "ANIM_HL"
+        highlight.Parent = player.Character
+        highlight.FillTransparency = 0.3
+        highlight.OutlineTransparency = 0
+        highlight.FillColor = shared._animationDetection.highlightColor
+        highlight.OutlineColor = shared._animationDetection.highlightOutline
+        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        
+        return highlight
+    end)
+    
+    if not success then
+        warn("Failed to create highlight for", player.Name)
+        return nil
+    end
+    
+    local success2, billboard = pcall(function()
+        local bg = Instance.new("BillboardGui")
+        bg.Name = "ANIM_WARNING"
+        bg.Size = UDim2.new(0, 50, 0, 50)
+        bg.StudsOffset = Vector3.new(0, 3.5, 0)
+        bg.AlwaysOnTop = true
+        bg.MaxDistance = 100
+        bg.Parent = player.Character
+        
+        local emoji = Instance.new("TextLabel")
+        emoji.Size = UDim2.new(1, 0, 1, 0)
+        emoji.Text = "⚠️"
+        emoji.TextScaled = true
+        emoji.BackgroundTransparency = 1
+        emoji.TextColor3 = Color3.fromRGB(255, 165, 0)
+        emoji.Font = Enum.Font.SourceSansBold
+        emoji.Parent = bg
+        
+        return bg
+    end)
+    
+    if not success2 then
+        warn("Failed to create billboard for", player.Name)
+    end
+    
+    return hl
+end
+
+-- Main Tab Buttons
 local teleportBtn = createButton(mainTab, "Teleport: Off", Color3.fromRGB(70, 70, 70))
 shared._combatGuiRefs.teleportButton = teleportBtn
 
@@ -148,6 +224,7 @@ local safePlatformCreated = false
 local safePlatformPart = nil
 local platformPos = Vector3.new(0, -494.5, 0)
 
+-- Camera Functions
 local function isCameraStuck()
     local camera = workspace.CurrentCamera
     local player = game.Players.LocalPlayer
@@ -251,6 +328,7 @@ local function createSafePlatform()
     return false
 end
 
+-- Platform Teleport
 safePlatformBtn.MouseButton1Click:Connect(function()
     if not safePlatformCreated then
         safePlatformPart = Instance.new("Part")
@@ -351,6 +429,7 @@ safePlatformBtn.MouseButton1Click:Connect(function()
     safePlatformBtn.BackgroundColor3 = Color3.fromRGB(80, 120, 200)
 end)
 
+-- Friend System
 local goToFriendBtn = createButton(mainTab, "Go to Friend", Color3.fromRGB(80, 120, 200))
 local currentFriendIndex = 0
 local friendList = {}
@@ -433,6 +512,7 @@ goToFriendBtn.MouseButton1Click:Connect(function()
     goToFriendBtn.BackgroundColor3 = Color3.fromRGB(80, 120, 200)
 end)
 
+-- Other Main Tab Elements
 local resetBtn = createButton(mainTab, "Reset Character", Color3.fromRGB(150, 50, 50))
 resetBtn.MouseButton1Click:Connect(function()
     local hum = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid")
@@ -454,7 +534,7 @@ targeterBox.FocusLost:Connect(function()
     shared._combatSettings.targetName = targeterBox.Text
 end)
 
-shared._combatSettings.ignoreNames = shared._combatSettings.ignoreNames or {}
+-- Ignore System
 local ignoredNames = shared._combatSettings.ignoreNames
 
 local ignoreInput = Instance.new("TextBox", mainTab)
@@ -515,8 +595,7 @@ Players.PlayerRemoving:Connect(function(player)
     end
 end)
 
--- Moved to Settings tab
-
+-- Settings Tab
 createToggle(settingsTab, "Team Check", "teamCheck")
 createToggle(settingsTab, "Friend Check", "friendCheck")
 createToggle(settingsTab, "Ragdoll Check", "ragdollCheck")
@@ -525,7 +604,7 @@ createToggle(settingsTab, "Lock Target", "lockTarget")
 createToggle(settingsTab, "One Time Kill", "oneTimeKill")
 createToggle(settingsTab, "Lowest Health", "lowestHealth")
 
--- Add animation detection toggles to Settings tab
+-- Animation Detection Toggles
 local omniDetectBtn = createButton(settingsTab, "Omni Detector: On", Color3.fromRGB(80, 120, 80))
 local escapeOmniBtn = createButton(settingsTab, "Escape Omni: Off", Color3.fromRGB(120, 80, 80))
 
@@ -553,6 +632,7 @@ end)
 
 initializeToggleButtons()
 
+-- Mini GUI and Close Buttons
 local miniWrapper = Instance.new("Frame", gui)
 miniWrapper.Size = UDim2.new(0, 240, 0, 45)
 miniWrapper.Position = UDim2.new(0.65, 0, 0.2, 0)
@@ -629,90 +709,194 @@ reopenBtn.MouseButton1Click:Connect(function()
     reopenBtn.Visible = false
 end)
 
-local function createAnimationHighlight(player)
-    if not player or not player.Character then return nil end
+-- Target Finding Functions
+local function findNearestEnemy()
+    local closest, dist = nil, math.huge
+    local myPos = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") and lp.Character.HumanoidRootPart.Position
     
-    -- Safety check
-    if not player.Character:FindFirstChild("HumanoidRootPart") then return nil end
+    if not myPos then return nil end
     
-    -- Remove existing highlight first
-    removeAnimationHighlight(player)
-    
-    -- Create new highlight with error handling
-    local success, hl = pcall(function()
-        local highlight = Instance.new("Highlight")
-        highlight.Name = "ANIM_HL"
-        highlight.Parent = player.Character
-        highlight.FillTransparency = 0.3
-        highlight.OutlineTransparency = 0
-        highlight.FillColor = shared._animationDetection.highlightColor
-        highlight.OutlineColor = shared._animationDetection.highlightOutline
-        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-        
-        return highlight
-    end)
-    
-    if not success then
-        warn("Failed to create highlight for", player.Name)
-        return nil
-    end
-    
-    -- Create warning emoji billboard with error handling
-    local success2, billboard = pcall(function()
-        local bg = Instance.new("BillboardGui")
-        bg.Name = "ANIM_WARNING"
-        bg.Size = UDim2.new(0, 50, 0, 50)
-        bg.StudsOffset = Vector3.new(0, 3.5, 0)
-        bg.AlwaysOnTop = true
-        bg.MaxDistance = 100
-        bg.Parent = player.Character
-        
-        local emoji = Instance.new("TextLabel")
-        emoji.Size = UDim2.new(1, 0, 1, 0)
-        emoji.Text = "⚠️"
-        emoji.TextScaled = true
-        emoji.BackgroundTransparency = 1
-        emoji.TextColor3 = Color3.fromRGB(255, 165, 0)
-        emoji.Font = Enum.Font.SourceSansBold
-        emoji.Parent = bg
-        
-        return bg
-    end)
-    
-    if not success2 then
-        warn("Failed to create billboard for", player.Name)
-    end
-    
-    return hl
-end
-
-local function removeAnimationHighlight(player)
-    if not player then return end
-    
-    if player.Character then
-        local hl = player.Character:FindFirstChild("ANIM_HL")
-        if hl then 
-            pcall(function() hl:Destroy() end)
-        end
-        
-        local warning = player.Character:FindFirstChild("ANIM_WARNING")
-        if warning then 
-            pcall(function() warning:Destroy() end)
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if isValidTarget(plr) then
+            local d = (myPos - plr.Character.HumanoidRootPart.Position).Magnitude
+            if d < dist then
+                closest = plr
+                dist = d
+            end
         end
     end
     
-    if player then
-        shared._animationDetection.activeHighlights[player.Name] = nil
+    return closest
+end
+
+local function findLowestHealthEnemy()
+    local lowest, minHealth = nil, math.huge
+    local myPos = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") and lp.Character.HumanoidRootPart.Position
+    
+    if not myPos then return nil end
+    
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if isValidTarget(plr) then
+            local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+            if hum and hum.Health < minHealth then
+                lowest = plr
+                minHealth = hum.Health
+            end
+        end
+    end
+    
+    return lowest
+end
+
+local function findPlayerByName(name)
+    name = name:lower()
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= lp then
+            if plr.Name:lower():find(name,1,true) or (plr.DisplayName and plr.DisplayName:lower():find(name,1,true)) then
+                return plr
+            end
+        end
+    end
+    return nil
+end
+
+local function hasValidTargets()
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if isValidTarget(plr) then
+            return true
+        end
+    end
+    
+    return false
+end
+
+-- Teleport Core Functions
+local function moveEntireCharacter(char, targetCFrame)
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        if char.PrimaryPart == nil then
+            char.PrimaryPart = char.HumanoidRootPart
+        end
+        
+        char:SetPrimaryPartCFrame(targetCFrame)
     end
 end
 
+-- Dodge System
+local dodgeBoost = 50
+local lastHealth = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") and lp.Character:FindFirstChildOfClass("Humanoid").Health or 100
+local dodgePosition = nil
+local dodgeTimer = 0
+local originalDistance = shared._combatSettings.teleportDistance
+
+local function onHealthChanged(newHealth)
+    if not shared._combatSettings.dodge then return end
+    if newHealth < lastHealth then
+        local char = lp.Character
+        if char and char:FindFirstChild("HumanoidRootPart") then
+            if shared._combatSettings.teleportOn then
+                dodgeTimer = 1.5
+                shared._combatSettings.teleportDistance = originalDistance + dodgeBoost
+            else
+                local hrp = char.HumanoidRootPart
+                dodgePosition = hrp.Position - hrp.CFrame.LookVector * dodgeBoost
+                task.delay(1.5, function()
+                    dodgePosition = nil
+                end)
+            end
+        end
+    end
+    lastHealth = newHealth
+end
+
+lp.CharacterAdded:Connect(function(char)
+    local hum = char:WaitForChild("Humanoid")
+    lastHealth = hum.Health
+    hum.HealthChanged:Connect(onHealthChanged)
+end)
+
+if lp.Character then
+    local hum = lp.Character:FindFirstChildOfClass("Humanoid")
+    if hum then
+        lastHealth = hum.Health
+        hum.HealthChanged:Connect(onHealthChanged)
+    end
+end
+
+-- Ragdoll Check
+local function isRagdolled()
+    local char = lp.Character
+    if not char then return false end
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if hum then
+        if hum:GetState() == Enum.HumanoidStateType.Physics then return true end
+        if hum.PlatformStand then return true end
+    end
+    for _, v in pairs(char:GetChildren()) do
+        if tostring(v.Name):lower():find("ragdoll") then return true end
+    end
+    return false
+end
+
+-- Teleport Control Variables
+local currentTarget = nil
+local trackedTarget = nil
+local autoDisabled = false
+local manualOff = false
+local teleportStatusReason = nil
+
+local function updateTeleportButton()
+    if teleportStatusReason then
+        teleportBtn.Text = "Teleport: Off ("..teleportStatusReason..")"
+    else
+        teleportBtn.Text = "Teleport: "..(shared._combatSettings.teleportOn and "On" or "Off")
+    end
+end
+
+teleportBtn.MouseButton1Click:Connect(function()
+    if teleportStatusReason then
+        teleportStatusReason = nil
+        updateTeleportButton()
+        manualOff = true
+    else
+        shared._combatSettings.teleportOn = not shared._combatSettings.teleportOn
+        manualOff = not shared._combatSettings.teleportOn
+        teleportStatusReason = nil
+        updateTeleportButton()
+    end
+    
+    if not shared._combatSettings.teleportOn then
+        currentTarget = nil
+        trackedTarget = nil
+    end
+end)
+
+lp.CharacterAdded:Connect(function()
+    teleportStatusReason = nil
+    manualOff = false
+    updateTeleportButton()
+    updateFriendCache()
+end)
+
+local function selectTarget()
+    local targetName = shared._combatSettings.targetName
+    
+    if targetName and #targetName > 0 then
+        return findPlayerByName(targetName)
+    elseif shared._combatSettings.lowestHealth then
+        return findLowestHealthEnemy()
+    else
+        return findNearestEnemy()
+    end
+end
+
+-- Animation Update System
 local function updateAnimationHighlights()
     if not shared._animationDetection.enabled then return end
     
     local currentTime = tick()
     local myPos = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") and lp.Character.HumanoidRootPart.Position
     
-    -- Clean up expired highlights
+    -- Clean expired highlights
     for playerName, data in pairs(shared._animationDetection.activeHighlights) do
         if currentTime > data.endTime then
             local player = Players:FindFirstChild(playerName)
@@ -724,25 +908,22 @@ local function updateAnimationHighlights()
         end
     end
     
-    -- Update active highlights and check for auto escape
+    -- Update active highlights
     for playerName, data in pairs(shared._animationDetection.activeHighlights) do
         local player = Players:FindFirstChild(playerName)
         if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            -- CREATE HIGHLIGHT FOR ALL PLAYERS (including self)
             createAnimationHighlight(player)
             
-            -- AUTO ESCAPE ONLY TRIGGERS FOR OTHER PLAYERS (not self) when they're playing animation
+            -- Auto escape logic
             if shared._animationDetection.autoEscape and player ~= lp and myPos then
                 local targetPos = player.Character.HumanoidRootPart.Position
                 if targetPos then
                     local distance = (myPos - targetPos).Magnitude
                     if distance <= shared._animationDetection.detectionRange then
-                        -- Check if we should trigger escape (not on cooldown)
                         local currentTime = tick()
                         if not data.lastEscapeTime or (currentTime - data.lastEscapeTime) > 3 then
                             data.lastEscapeTime = currentTime
                             
-                            -- Auto escape turns off teleport first before teleporting to platform
                             if shared._combatSettings.teleportOn then
                                 shared._combatSettings.teleportOn = false
                                 teleportBtn.Text = "Teleport: Off"
@@ -804,336 +985,7 @@ local function updateAnimationHighlights()
     end
 end
 
-local function monitorPlayerAnimations(player)
-    local connection
-    local lastAnimations = {}
-    
-    local function checkAnimations()
-        if not player or not player.Character then return end
-        
-        local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
-        if not humanoid then return end
-        
-        local animator = humanoid:FindFirstChildOfClass("Animator")
-        if not animator then return end
-        
-        for _, track in pairs(animator:GetPlayingAnimationTracks()) do
-            local anim = track.Animation
-            if anim then
-                local animId = tonumber(anim.AnimationId:match("%d+"))
-                if animId and table.find(shared._animationDetection.animationIds, animId) then
-                    if not lastAnimations[animId] then
-                        -- Initialize active highlight data
-                        if not shared._animationDetection.activeHighlights[player.Name] then
-                            shared._animationDetection.activeHighlights[player.Name] = {
-                                endTime = tick() + shared._animationDetection.highlightDuration,
-                                animationId = animId,
-                                firstDetected = tick()
-                            }
-                        else
-                            -- Update existing highlight
-                            shared._animationDetection.activeHighlights[player.Name].endTime = tick() + shared._animationDetection.highlightDuration
-                            shared._animationDetection.activeHighlights[player.Name].animationId = animId
-                        end
-                        lastAnimations[animId] = true
-                    end
-                end
-            end
-        end
-        
-        -- Clean up old animations
-        for animId, _ in pairs(lastAnimations) do
-            local found = false
-            for _, track in pairs(animator:GetPlayingAnimationTracks()) do
-                local anim = track.Animation
-                if anim then
-                    local currentAnimId = tonumber(anim.AnimationId:match("%d+"))
-                    if currentAnimId == animId then
-                        found = true
-                        break
-                    end
-                end
-            end
-            
-            if not found then
-                lastAnimations[animId] = nil
-            end
-        end
-    end
-    
-    connection = game:GetService("RunService").Heartbeat:Connect(checkAnimations)
-    
-    player:GetPropertyChangedSignal("Character"):Connect(function()
-        removeAnimationHighlight(player)
-        lastAnimations = {}
-    end)
-    
-    player.AncestryChanged:Connect(function()
-        if not player:IsDescendantOf(game) then
-            if connection then
-                connection:Disconnect()
-            end
-            removeAnimationHighlight(player)
-            shared._animationDetection.activeHighlights[player.Name] = nil
-        end
-    end)
-end
-
-for _, player in ipairs(Players:GetPlayers()) do
-    monitorPlayerAnimations(player)
-end
-
-Players.PlayerAdded:Connect(function(player)
-    task.wait(1)
-    monitorPlayerAnimations(player)
-end)
-
-local RunService = game:GetService("RunService")
-
-local friendCache = {}
-local function updateFriendCache()
-    friendCache = {}
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= lp and lp:IsFriendsWith(plr.UserId) then
-            friendCache[plr.Name] = true
-        end
-    end
-end
-
-updateFriendCache()
-
-Players.PlayerAdded:Connect(function(plr)
-    task.wait(1)
-    if lp:IsFriendsWith(plr.UserId) then
-        friendCache[plr.Name] = true
-    end
-end)
-
-Players.PlayerRemoving:Connect(function(plr)
-    friendCache[plr.Name] = nil
-end)
-
-local function isValidTarget(plr)
-    if plr then
-        if plr == lp then return false end
-        
-        if shared._combatSettings.friendCheck and friendCache[plr.Name] then 
-            return false 
-        end
-        
-        if shared._combatSettings.teamCheck and plr.Team == lp.Team then 
-            return false 
-        end
-        
-        local targetName = shared._combatSettings.targetName or ""
-        if targetName and #targetName > 0 then
-            local nameMatch = plr.Name:lower():find(targetName:lower(), 1, true) or 
-                             (plr.DisplayName and plr.DisplayName:lower():find(targetName:lower(), 1, true))
-            if not nameMatch then
-                return false
-            end
-        end
-        
-        if not plr.Character or not plr.Character:FindFirstChild("HumanoidRootPart") then 
-            return false 
-        end
-        
-        local hum = plr.Character:FindFirstChildOfClass("Humanoid")
-        if not hum or hum.Health <= 0 then 
-            return false 
-        end
-
-        local ignoreList = shared._combatSettings.ignoreNames or {}  
-        for _, ignored in ipairs(ignoreList) do  
-            local ignoredLower = ignored:lower()  
-            if plr.Name:lower():find(ignoredLower, 1, true) or (plr.DisplayName and plr.DisplayName:lower():find(ignoredLower, 1, true)) then  
-                return false  
-            end  
-        end  
-        
-        return true
-    end
-    return false
-end
-
-local function findNearestEnemy()
-    local closest, dist = nil, math.huge
-    local myPos = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") and lp.Character.HumanoidRootPart.Position
-    
-    if not myPos then return nil end
-    
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if isValidTarget(plr) then
-            local d = (myPos - plr.Character.HumanoidRootPart.Position).Magnitude
-            if d < dist then
-                closest = plr
-                dist = d
-            end
-        end
-    end
-    
-    return closest
-end
-
-local function findLowestHealthEnemy()
-    local lowest, minHealth = nil, math.huge
-    local myPos = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") and lp.Character.HumanoidRootPart.Position
-    
-    if not myPos then return nil end
-    
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if isValidTarget(plr) then
-            local hum = plr.Character:FindFirstChildOfClass("Humanoid")
-            if hum and hum.Health < minHealth then
-                lowest = plr
-                minHealth = hum.Health
-            end
-        end
-    end
-    
-    return lowest
-end
-
-local function findPlayerByName(name)
-    name = name:lower()
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= lp then
-            if plr.Name:lower():find(name,1,true) or (plr.DisplayName and plr.DisplayName:lower():find(name,1,true)) then
-                return plr
-            end
-        end
-    end
-    return nil
-end
-
-local function hasValidTargets()
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if isValidTarget(plr) then
-            return true
-        end
-    end
-    
-    return false
-end
-
-local function moveEntireCharacter(char, targetCFrame)
-    if char and char:FindFirstChild("HumanoidRootPart") then
-        if char.PrimaryPart == nil then
-            char.PrimaryPart = char.HumanoidRootPart
-        end
-        
-        char:SetPrimaryPartCFrame(targetCFrame)
-    end
-end
-
-local dodgeBoost = 50
-local lastHealth = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") and lp.Character:FindFirstChildOfClass("Humanoid").Health or 100
-local dodgePosition = nil
-local dodgeTimer = 0
-local originalDistance = shared._combatSettings.teleportDistance
-
-local function onHealthChanged(newHealth)
-    if not shared._combatSettings.dodge then return end
-    if newHealth < lastHealth then
-        local char = lp.Character
-        if char and char:FindFirstChild("HumanoidRootPart") then
-            if shared._combatSettings.teleportOn then
-                dodgeTimer = 1.5
-                shared._combatSettings.teleportDistance = originalDistance + dodgeBoost
-            else
-                local hrp = char.HumanoidRootPart
-                dodgePosition = hrp.Position - hrp.CFrame.LookVector * dodgeBoost
-                task.delay(1.5, function()
-                    dodgePosition = nil
-                end)
-            end
-        end
-    end
-    lastHealth = newHealth
-end
-
-lp.CharacterAdded:Connect(function(char)
-    local hum = char:WaitForChild("Humanoid")
-    lastHealth = hum.Health
-    hum.HealthChanged:Connect(onHealthChanged)
-end)
-
-if lp.Character then
-    local hum = lp.Character:FindFirstChildOfClass("Humanoid")
-    if hum then
-        lastHealth = hum.Health
-        hum.HealthChanged:Connect(onHealthChanged)
-    end
-end
-
-local function isRagdolled()
-    local char = lp.Character
-    if not char then return false end
-    local hum = char:FindFirstChildOfClass("Humanoid")
-    if hum then
-        if hum:GetState() == Enum.HumanoidStateType.Physics then return true end
-        if hum.PlatformStand then return true end
-    end
-    for _, v in pairs(char:GetChildren()) do
-        if tostring(v.Name):lower():find("ragdoll") then return true end
-    end
-    return false
-end
-
-local currentTarget = nil
-local trackedTarget = nil
-local teleportBtn = shared._combatGuiRefs.teleportButton
-local autoDisabled = false
-local manualOff = false
-local teleportStatusReason = nil
-
-local function updateTeleportButton()
-    if teleportStatusReason then
-        teleportBtn.Text = "Teleport: Off ("..teleportStatusReason..")"
-    else
-        teleportBtn.Text = "Teleport: "..(shared._combatSettings.teleportOn and "On" or "Off")
-    end
-end
-
-teleportBtn.MouseButton1Click:Connect(function()
-    if teleportStatusReason then
-        teleportStatusReason = nil
-        updateTeleportButton()
-        manualOff = true
-    else
-        shared._combatSettings.teleportOn = not shared._combatSettings.teleportOn
-        manualOff = not shared._combatSettings.teleportOn
-        teleportStatusReason = nil
-        updateTeleportButton()
-    end
-    
-    if not shared._combatSettings.teleportOn then
-        currentTarget = nil
-        trackedTarget = nil
-    end
-end)
-
-lp.CharacterAdded:Connect(function()
-    teleportStatusReason = nil
-    manualOff = false
-    updateTeleportButton()
-    updateFriendCache()
-end)
-
-local function selectTarget()
-    local targetName = shared._combatSettings.targetName
-    
-    if targetName and #targetName > 0 then
-        return findPlayerByName(targetName)
-    elseif shared._combatSettings.lowestHealth then
-        return findLowestHealthEnemy()
-    else
-        return findNearestEnemy()
-    end
-end
-
--- REMOVED: No auto re-enable when targets appear
--- We only disable, never re-enable automatically
+-- No Target Check
 local function checkNoTargets()
     if shared._combatSettings.teleportOn and not manualOff then
         if not hasValidTargets() then
@@ -1147,6 +999,7 @@ local function checkNoTargets()
     return false
 end
 
+-- Main Heartbeat Loop
 RunService.Heartbeat:Connect(function()
     updateAnimationHighlights()
     
@@ -1178,17 +1031,11 @@ RunService.Heartbeat:Connect(function()
         end  
     end  
 
-    -- REMOVED: No auto re-enable when ragdoll/dead status changes
-    -- User must manually turn teleport back on
-
     if checkNoTargets() then
         currentTarget = nil
         trackedTarget = nil
         return
     end
-    
-    -- REMOVED: No auto clearing of "No Target" status
-    -- Status stays until user manually clicks button again
 
     if shared._combatSettings.teleportOn and not manualOff and hasValidTargets() then  
         if not trackedTarget then  
@@ -1249,12 +1096,6 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
-task.wait(1)
-for _, player in ipairs(Players:GetPlayers()) do
-    monitorPlayerAnimations(player)
-end
-
 updateIgnoreUI()
 
 print("Teleporter by Krysan loaded successfully!")
-print("Animation IDs:", table.concat(shared._animationDetection.animationIds, ", "))

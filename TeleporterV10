@@ -236,21 +236,38 @@ local function createSafePlatform()
     return false
 end
 
-local function checkAndFixCamera()
+local function isCameraStuck()
     local camera = workspace.CurrentCamera
     local char = lp.Character
     
-    if not char then return false end
+    if not char then return true, "No Character" end
     
-    local humanoid = char:FindFirstChildOfClass("Humanoid")
-    if not humanoid then return false end
+    if camera.CameraSubject == nil or camera.CameraSubject.Parent == nil then
+        return true, "No CameraSubject"
+    end
+    
+    if not (camera.CameraSubject:IsA("Humanoid") and camera.CameraSubject.Parent == char) then
+        return true, "Wrong CameraSubject"
+    end
+    
+    return false, nil
+end
+
+local function fixCameraCompletely()
+    local camera = workspace.CurrentCamera
+    local char = lp.Character
+    
+    if not char then return false, "No Character" end
     
     local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return false end
+    if not hrp then return false, "No HRP" end
+    
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    if not humanoid then return false, "No Humanoid" end
     
     local fixedSomething = false
     
-    -- 1. Fix CameraSubject if wrong
+    -- Fix CameraSubject if wrong
     local currentSubject = camera.CameraSubject
     
     if currentSubject == nil or currentSubject.Parent == nil then
@@ -261,26 +278,10 @@ local function checkAndFixCamera()
         fixedSomething = true
     end
     
-    -- 2. Fix Camera CFrame/Position if it's stuck looking at wrong place
-    -- Check if camera is too far from character
+    -- Reset camera position if too far away
     local cameraDistance = (camera.CFrame.Position - hrp.Position).Magnitude
-    if cameraDistance > 50 then  -- Camera is more than 50 studs away
-        -- Reset camera to behind character
-        local lookAt = hrp.Position + Vector3.new(0, 3, 0)
-        local offset = Vector3.new(0, 3, -10)  -- Standard 3rd person offset
-        local newPosition = lookAt + offset
-        
-        camera.CFrame = CFrame.new(newPosition, lookAt)
-        fixedSomething = true
-    end
-    
-    -- 3. Check if camera is looking at sky/ground/weird angle
-    local cameraLook = camera.CFrame.LookVector
-    local upVector = Vector3.new(0, 1, 0)
-    local angle = math.acos(cameraLook:Dot(upVector))
-    
-    if angle < math.rad(10) or angle > math.rad(170) then  -- Looking straight up/down
-        -- Reset to normal angle
+    if cameraDistance > 50 then
+        -- Set to standard 3rd person position
         local lookAt = hrp.Position + Vector3.new(0, 3, 0)
         local offset = Vector3.new(0, 3, -10)
         local newPosition = lookAt + offset
@@ -294,7 +295,7 @@ end
 
 local function scheduleCameraFix(delay)
     task.wait(delay)
-    checkAndFixCamera()
+    fixCameraCompletely()
 end
 
 safePlatformBtn.MouseButton1Click:Connect(function()

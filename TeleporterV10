@@ -27,6 +27,7 @@ shared._animationDetection = {
     activeHighlights = {}
 }
 shared._combatSettings.ignoreNames = shared._combatSettings.ignoreNames or {}
+local ignoredNames = shared._combatSettings.ignoreNames
 
 local gui = Instance.new("ScreenGui", game.CoreGui)
 gui.Name = "CombatGUI"
@@ -133,97 +134,6 @@ local function createToggle(tab, label, key)
     return btn
 end
 
-local function initializeToggleButtons()
-    for key, data in pairs(toggleButtons) do
-        local currentState = shared._combatSettings[key]
-        data.btn.Text = data.label .. ": " .. (currentState and "On" or "Off")
-        data.btn.BackgroundColor3 = currentState and Color3.fromRGB(80, 120, 80) or Color3.fromRGB(60, 60, 60)
-    end
-end
-
--- Animation highlight functions
-local function removeAnimationHighlight(player)
-    if not player then return end
-    
-    if player.Character then
-        local hl = player.Character:FindFirstChild("ANIM_HL")
-        if hl then 
-            pcall(function() hl:Destroy() end)
-        end
-        
-        local warning = player.Character:FindFirstChild("ANIM_WARNING")
-        if warning then 
-            pcall(function() warning:Destroy() end)
-        end
-    end
-    
-    if player then
-        shared._animationDetection.activeHighlights[player.Name] = nil
-    end
-end
-
-local function createAnimationHighlight(player)
-    if not player or not player.Character then return nil end
-    
-    if not player.Character:FindFirstChild("HumanoidRootPart") then return nil end
-    
-    removeAnimationHighlight(player)
-    
-    local success, hl = pcall(function()
-        local highlight = Instance.new("Highlight")
-        highlight.Name = "ANIM_HL"
-        highlight.Parent = player.Character
-        highlight.FillTransparency = 0.3
-        highlight.OutlineTransparency = 0
-        highlight.FillColor = shared._animationDetection.highlightColor
-        highlight.OutlineColor = shared._animationDetection.highlightOutline
-        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-        
-        return highlight
-    end)
-    
-    if not success then
-        warn("Failed to create highlight for", player.Name)
-        return nil
-    end
-    
-    local success2, billboard = pcall(function()
-        local bg = Instance.new("BillboardGui")
-        bg.Name = "ANIM_WARNING"
-        bg.Size = UDim2.new(0, 50, 0, 50)
-        bg.StudsOffset = Vector3.new(0, 3.5, 0)
-        bg.AlwaysOnTop = true
-        bg.MaxDistance = 100
-        bg.Parent = player.Character
-        
-        local emoji = Instance.new("TextLabel")
-        emoji.Size = UDim2.new(1, 0, 1, 0)
-        emoji.Text = "⚠️"
-        emoji.TextScaled = true
-        emoji.BackgroundTransparency = 1
-        emoji.TextColor3 = Color3.fromRGB(255, 165, 0)
-        emoji.Font = Enum.Font.SourceSansBold
-        emoji.Parent = bg
-        
-        return bg
-    end)
-    
-    if not success2 then
-        warn("Failed to create billboard for", player.Name)
-    end
-    
-    return hl
-end
-
--- Main Tab Buttons
-local teleportBtn = createButton(mainTab, "Teleport: Off", Color3.fromRGB(70, 70, 70))
-shared._combatGuiRefs.teleportButton = teleportBtn
-
-local safePlatformBtn = createButton(mainTab, "Teleport to Platform", Color3.fromRGB(80, 120, 200))
-local safePlatformCreated = false
-local safePlatformPart = nil
-local platformPos = Vector3.new(0, -494.5, 0)
-
 -- Camera Functions
 local function isCameraStuck()
     local camera = workspace.CurrentCamera
@@ -309,6 +219,15 @@ local function fixCameraCompletely()
     
     return fixed, lastReason
 end
+
+-- Main Tab Buttons
+local teleportBtn = createButton(mainTab, "Teleport: Off", Color3.fromRGB(70, 70, 70))
+shared._combatGuiRefs.teleportButton = teleportBtn
+
+local safePlatformBtn = createButton(mainTab, "Teleport to Platform", Color3.fromRGB(80, 120, 200))
+local safePlatformCreated = false
+local safePlatformPart = nil
+local platformPos = Vector3.new(0, -494.5, 0)
 
 local function createSafePlatform()
     if not safePlatformCreated then
@@ -512,13 +431,14 @@ goToFriendBtn.MouseButton1Click:Connect(function()
     goToFriendBtn.BackgroundColor3 = Color3.fromRGB(80, 120, 200)
 end)
 
--- Other Main Tab Elements
+-- Reset Button
 local resetBtn = createButton(mainTab, "Reset Character", Color3.fromRGB(150, 50, 50))
 resetBtn.MouseButton1Click:Connect(function()
     local hum = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid")
     if hum then hum.Health = 0 end
 end)
 
+-- Targeter
 local targeterBox = Instance.new("TextBox", mainTab)
 targeterBox.Size = UDim2.new(1, -20, 0, 35)
 targeterBox.Text = ""
@@ -535,8 +455,6 @@ targeterBox.FocusLost:Connect(function()
 end)
 
 -- Ignore System
-local ignoredNames = shared._combatSettings.ignoreNames
-
 local ignoreInput = Instance.new("TextBox", mainTab)
 ignoreInput.Size = UDim2.new(1, -20, 0, 35)
 ignoreInput.PlaceholderText = "Enter name to ignore"
@@ -617,7 +535,10 @@ omniDetectBtn.MouseButton1Click:Connect(function()
         for playerName, data in pairs(shared._animationDetection.activeHighlights) do
             local player = Players:FindFirstChild(playerName)
             if player and player.Character then
-                removeAnimationHighlight(player)
+                local hl = player.Character:FindFirstChild("ANIM_HL")
+                if hl then pcall(function() hl:Destroy() end) end
+                local warning = player.Character:FindFirstChild("ANIM_WARNING")
+                if warning then pcall(function() warning:Destroy() end) end
             end
         end
         shared._animationDetection.activeHighlights = {}
@@ -630,9 +551,18 @@ escapeOmniBtn.MouseButton1Click:Connect(function()
     escapeOmniBtn.BackgroundColor3 = shared._animationDetection.autoEscape and Color3.fromRGB(120, 80, 80) or Color3.fromRGB(60, 60, 60)
 end)
 
+-- Initialize Toggle Buttons
+local function initializeToggleButtons()
+    for key, data in pairs(toggleButtons) do
+        local currentState = shared._combatSettings[key]
+        data.btn.Text = data.label .. ": " .. (currentState and "On" or "Off")
+        data.btn.BackgroundColor3 = currentState and Color3.fromRGB(80, 120, 80) or Color3.fromRGB(60, 60, 60)
+    end
+end
+
 initializeToggleButtons()
 
--- Mini GUI and Close Buttons
+-- Mini GUI
 local miniWrapper = Instance.new("Frame", gui)
 miniWrapper.Size = UDim2.new(0, 240, 0, 45)
 miniWrapper.Position = UDim2.new(0.65, 0, 0.2, 0)
@@ -677,6 +607,7 @@ wrapper:GetPropertyChangedSignal("Visible"):Connect(function()
 end)
 miniWrapper.Visible = wrapper.Visible
 
+-- Close/Reopen Buttons
 local closeBtn = Instance.new("TextButton", wrapper)
 closeBtn.Size = UDim2.new(0, 25, 0, 25)
 closeBtn.Position = UDim2.new(1, -30, 0, 2)
@@ -709,7 +640,229 @@ reopenBtn.MouseButton1Click:Connect(function()
     reopenBtn.Visible = false
 end)
 
--- Target Finding Functions
+-- Animation highlight functions
+local function removeAnimationHighlight(player)
+    if not player then return end
+    
+    if player.Character then
+        local hl = player.Character:FindFirstChild("ANIM_HL")
+        if hl then 
+            pcall(function() hl:Destroy() end)
+        end
+        
+        local warning = player.Character:FindFirstChild("ANIM_WARNING")
+        if warning then 
+            pcall(function() warning:Destroy() end)
+        end
+    end
+    
+    if player then
+        shared._animationDetection.activeHighlights[player.Name] = nil
+    end
+end
+
+local function createAnimationHighlight(player)
+    if not player or not player.Character then return nil end
+    
+    if not player.Character:FindFirstChild("HumanoidRootPart") then return nil end
+    
+    removeAnimationHighlight(player)
+    
+    local success, hl = pcall(function()
+        local highlight = Instance.new("Highlight")
+        highlight.Name = "ANIM_HL"
+        highlight.Parent = player.Character
+        highlight.FillTransparency = 0.3
+        highlight.OutlineTransparency = 0
+        highlight.FillColor = shared._animationDetection.highlightColor
+        highlight.OutlineColor = shared._animationDetection.highlightOutline
+        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        
+        return highlight
+    end)
+    
+    if not success then
+        warn("Failed to create highlight for", player.Name)
+        return nil
+    end
+    
+    local success2, billboard = pcall(function()
+        local bg = Instance.new("BillboardGui")
+        bg.Name = "ANIM_WARNING"
+        bg.Size = UDim2.new(0, 50, 0, 50)
+        bg.StudsOffset = Vector3.new(0, 3.5, 0)
+        bg.AlwaysOnTop = true
+        bg.MaxDistance = 100
+        bg.Parent = player.Character
+        
+        local emoji = Instance.new("TextLabel")
+        emoji.Size = UDim2.new(1, 0, 1, 0)
+        emoji.Text = "⚠️"
+        emoji.TextScaled = true
+        emoji.BackgroundTransparency = 1
+        emoji.TextColor3 = Color3.fromRGB(255, 165, 0)
+        emoji.Font = Enum.Font.SourceSansBold
+        emoji.Parent = bg
+        
+        return bg
+    end)
+    
+    if not success2 then
+        warn("Failed to create billboard for", player.Name)
+    end
+    
+    return hl
+end
+
+-- Animation Monitoring
+local function monitorPlayerAnimations(player)
+    local connection
+    local lastAnimations = {}
+    
+    local function checkAnimations()
+        if not player or not player.Character then return end
+        
+        local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+        if not humanoid then return end
+        
+        local animator = humanoid:FindFirstChildOfClass("Animator")
+        if not animator then return end
+        
+        for _, track in pairs(animator:GetPlayingAnimationTracks()) do
+            local anim = track.Animation
+            if anim then
+                local animId = tonumber(anim.AnimationId:match("%d+"))
+                if animId and table.find(shared._animationDetection.animationIds, animId) then
+                    if not lastAnimations[animId] then
+                        if not shared._animationDetection.activeHighlights[player.Name] then
+                            shared._animationDetection.activeHighlights[player.Name] = {
+                                endTime = tick() + shared._animationDetection.highlightDuration,
+                                animationId = animId,
+                                firstDetected = tick()
+                            }
+                        else
+                            shared._animationDetection.activeHighlights[player.Name].endTime = tick() + shared._animationDetection.highlightDuration
+                            shared._animationDetection.activeHighlights[player.Name].animationId = animId
+                        end
+                        lastAnimations[animId] = true
+                    end
+                end
+            end
+        end
+        
+        for animId, _ in pairs(lastAnimations) do
+            local found = false
+            for _, track in pairs(animator:GetPlayingAnimationTracks()) do
+                local anim = track.Animation
+                if anim then
+                    local currentAnimId = tonumber(anim.AnimationId:match("%d+"))
+                    if currentAnimId == animId then
+                        found = true
+                        break
+                    end
+                end
+            end
+            
+            if not found then
+                lastAnimations[animId] = nil
+            end
+        end
+    end
+    
+    connection = RunService.Heartbeat:Connect(checkAnimations)
+    
+    player:GetPropertyChangedSignal("Character"):Connect(function()
+        removeAnimationHighlight(player)
+        lastAnimations = {}
+    end)
+    
+    player.AncestryChanged:Connect(function()
+        if not player:IsDescendantOf(game) then
+            if connection then
+                connection:Disconnect()
+            end
+            removeAnimationHighlight(player)
+            shared._animationDetection.activeHighlights[player.Name] = nil
+        end
+    end)
+end
+
+for _, player in ipairs(Players:GetPlayers()) do
+    monitorPlayerAnimations(player)
+end
+
+Players.PlayerAdded:Connect(function(player)
+    task.wait(1)
+    monitorPlayerAnimations(player)
+end)
+
+-- Friend Cache
+local friendCache = {}
+local function updateFriendCache()
+    friendCache = {}
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= lp and lp:IsFriendsWith(plr.UserId) then
+            friendCache[plr.Name] = true
+        end
+    end
+end
+
+updateFriendCache()
+
+Players.PlayerAdded:Connect(function(plr)
+    task.wait(1)
+    if lp:IsFriendsWith(plr.UserId) then
+        friendCache[plr.Name] = true
+    end
+end)
+
+Players.PlayerRemoving:Connect(function(plr)
+    friendCache[plr.Name] = nil
+end)
+
+-- Target Validation
+local function isValidTarget(plr)
+    if plr then
+        if plr == lp then return false end
+        
+        if shared._combatSettings.friendCheck and friendCache[plr.Name] then 
+            return false 
+        end
+        
+        if shared._combatSettings.teamCheck and plr.Team == lp.Team then 
+            return false 
+        end
+        
+        local targetName = shared._combatSettings.targetName or ""
+        if targetName and #targetName > 0 then
+            local nameMatch = plr.Name:lower():find(targetName:lower(), 1, true) or 
+                             (plr.DisplayName and plr.DisplayName:lower():find(targetName:lower(), 1, true))
+            if not nameMatch then
+                return false
+            end
+        end
+        
+        if not plr.Character or not plr.Character:FindFirstChild("HumanoidRootPart") then 
+            return false 
+        end
+        
+        local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+        if not hum or hum.Health <= 0 then 
+            return false 
+        end
+
+        for _, ignored in ipairs(ignoredNames) do  
+            local ignoredLower = ignored:lower()  
+            if plr.Name:lower():find(ignoredLower, 1, true) or (plr.DisplayName and plr.DisplayName:lower():find(ignoredLower, 1, true)) then  
+                return false  
+            end  
+        end  
+        
+        return true
+    end
+    return false
+end
+
 local function findNearestEnemy()
     local closest, dist = nil, math.huge
     local myPos = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") and lp.Character.HumanoidRootPart.Position

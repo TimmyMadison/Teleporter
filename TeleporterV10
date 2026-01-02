@@ -1,12 +1,1165 @@
-local v0=game:GetService("Players");local v1=v0.LocalPlayer;local v2=game:GetService("RunService");shared._combatSettings=shared._combatSettings or {teleportOn=false,teamCheck=false,ragdollCheck=false,lockTarget=false,friendCheck=false,dodge=false,oneTimeKill=false,lowestHealth=false,teleportDistance=4,teleportUp=1 + 1 ,targetName=""} ;shared._combatGuiRefs={};shared._animationDetection={enabled=true,autoEscape=false,animationIds={13927612951,15128850258 -(508 + 703) },highlightDuration=5,detectionRange=30 + 40 ,highlightColor=Color3.fromRGB(255,165,0),highlightOutline=Color3.fromRGB(115 + 85 ,281 -151 ,0),activeHighlights={}};shared._combatSettings.ignoreNames=shared._combatSettings.ignoreNames or {} ;local v7=shared._combatSettings.ignoreNames;local v8=Instance.new("ScreenGui",game.CoreGui);v8.Name="CombatGUI";v8.ResetOnSpawn=false;local v11=Instance.new("Frame",v8);v11.Size=UDim2.new(0 -0 ,716 -396 ,0,131 + 319 );v11.Position=UDim2.new(0.3 -0 ,0,753.2 -(239 + 514) ,0 + 0 );v11.BackgroundColor3=Color3.fromRGB(1359 -(797 + 532) ,22 + 8 ,11 + 19 );v11.BorderSizePixel=0 -0 ;v11.Active=true;v11.Draggable=true;Instance.new("UICorner",v11).CornerRadius=UDim.new(1202 -(373 + 829) ,741 -(476 + 255) );Instance.new("UIStroke",v11).Color=Color3.fromRGB(1190 -(369 + 761) ,35 + 25 ,108 -48 );local v20=Instance.new("Frame",v11);v20.Size=UDim2.new(1,0 -0 ,0,268 -(64 + 174) );v20.BackgroundColor3=Color3.fromRGB(6 + 34 ,59 -19 ,40);v20.BorderSizePixel=0;Instance.new("UICorner",v20).CornerRadius=UDim.new(336 -(144 + 192) ,10);local v25=Instance.new("TextLabel",v20);v25.Size=UDim2.new(217 -(42 + 174) , -(31 + 9),1 + 0 ,0 + 0 );v25.Position=UDim2.new(1504 -(363 + 1141) ,10,0,1580 -(1183 + 397) );v25.Text="Teleporter by Krysan";v25.TextColor3=Color3.new(2 -1 ,1,1 + 0 );v25.BackgroundTransparency=1;v25.TextXAlignment=Enum.TextXAlignment.Left;v25.TextScaled=true;local v34=Instance.new("Frame",v11);v34.Size=UDim2.new(1 + 0 ,1975 -(1913 + 62) ,0 + 0 ,105 -65 );v34.Position=UDim2.new(1933 -(565 + 1368) ,0,0,30);v34.BackgroundColor3=Color3.fromRGB(35,131 -96 ,1696 -(1477 + 184) );local v38=Instance.new("Frame",v11);v38.Size=UDim2.new(1 -0 ,0 + 0 ,857 -(564 + 292) , -(120 -50));v38.Position=UDim2.new(0 -0 ,304 -(244 + 60) ,0 + 0 ,70);v38.BackgroundTransparency=477 -(41 + 435) ;local v42={};local v43=1001 -(938 + 63) ;local function v44(v168) local v169=0 + 0 ;local v170;local v171;local v172;while true do if (v169==3) then v172.Position=UDim2.new(v43 * 0.5 ,1130 -(936 + 189) ,0 + 0 ,1617 -(1565 + 48) );v172.Text=v168;v172.BackgroundColor3=Color3.fromRGB(31 + 19 ,1188 -(782 + 356) ,317 -(176 + 91) );v172.TextColor3=Color3.new(1,2 -1 ,1 -0 );v169=1096 -(975 + 117) ;end if (v169==4) then v172.TextScaled=true;v172.Parent=v34;Instance.new("UICorner",v172).CornerRadius=UDim.new(1875 -(157 + 1718) ,5 + 1 );v172.MouseButton1Click:Connect(function() local v411=0 -0 ;while true do if (v411==(0 -0)) then for v551,v552 in pairs(v42) do v552.Visible=false;end v170.Visible=true;break;end end end);v169=1023 -(697 + 321) ;end if (v169==(2 -1)) then v170.Parent=v38;v171=Instance.new("UIListLayout",v170);v171.Padding=UDim.new(0 -0 ,18 -10 );v171.SortOrder=Enum.SortOrder.LayoutOrder;v169=1 + 1 ;end if (v169==5) then local v376=0;while true do if (v376==(0 -0)) then v43+=(2 -1) return v170;end end end if (2==v169) then v171.HorizontalAlignment=Enum.HorizontalAlignment.Center;v42[v168]=v170;v172=Instance.new("TextButton");v172.Size=UDim2.new(1227.5 -(322 + 905) , -(621 -(602 + 9)),1, -(1197 -(449 + 740)));v169=3;end if (v169==(872 -(826 + 46))) then v170=Instance.new("Frame");v170.Size=UDim2.new(948 -(245 + 702) ,0 -0 ,1 + 0 ,0);v170.BackgroundTransparency=1899 -(260 + 1638) ;v170.Visible=false;v169=1;end end end local v45=v44("Main");local v46=v44("Settings");v45.Visible=true;local function v48(v173,v174,v175) local v176=Instance.new("TextButton",v173);v176.Size=UDim2.new(1, -20,440 -(382 + 58) ,112 -77 );v176.Text=v174;v176.BackgroundColor3=v175 or Color3.fromRGB(50 + 10 ,124 -64 ,178 -118 ) ;v176.TextColor3=Color3.new(1206 -(902 + 303) ,1 -0 ,2 -1 );v176.TextScaled=true;Instance.new("UICorner",v176).CornerRadius=UDim.new(0 + 0 ,1696 -(1121 + 569) );Instance.new("UIStroke",v176).Color=Color3.fromRGB(80,294 -(22 + 192) ,80);return v176;end local v49={};local function v50(v184,v185,v186) local v187=0;local v188;while true do if (v187==(684 -(483 + 200))) then v188.MouseButton1Click:Connect(function() local v412=0;local v413;while true do if ((1463 -(1404 + 59))==v412) then v413=0;while true do if (v413==(0 -0)) then shared._combatSettings[v186]= not shared._combatSettings[v186];v188.Text=v185   .. ": "   .. ((shared._combatSettings[v186] and "On") or "Off") ;v413=1;end if (v413==(1 -0)) then v188.BackgroundColor3=(shared._combatSettings[v186] and Color3.fromRGB(845 -(468 + 297) ,120,80)) or Color3.fromRGB(622 -(334 + 228) ,202 -142 ,60) ;break;end end break;end end end);return v188;end if (v187==(0 -0)) then v188=v48(v184,v185   .. ": Off" ,Color3.fromRGB(108 -48 ,60,18 + 42 ));v49[v186]={btn=v188,label=v185};v187=1;end end end local function v51() for v280,v281 in pairs(v49) do local v282=shared._combatSettings[v280];v281.btn.Text=v281.label   .. ": "   .. ((v282 and "On") or "Off") ;v281.btn.BackgroundColor3=(v282 and Color3.fromRGB(80,356 -(141 + 95) ,79 + 1 )) or Color3.fromRGB(154 -94 ,144 -84 ,15 + 45 ) ;end end local function v52(v189) local v190=0;local v191;while true do if (v190==(0 -0)) then v191=0 + 0 ;while true do if ((1 + 0)==v191) then if v189 then shared._animationDetection.activeHighlights[v189.Name]=nil;end break;end if ((0 -0)==v191) then if  not v189 then return;end if v189.Character then local v555=0 + 0 ;local v556;local v557;while true do if (v555==(164 -(92 + 71))) then v557=v189.Character:FindFirstChild("ANIM_WARNING");if v557 then pcall(function() v557:Destroy();end);end break;end if (v555==0) then v556=v189.Character:FindFirstChild("ANIM_HL");if v556 then pcall(function() v556:Destroy();end);end v555=1 + 0 ;end end end v191=1;end end break;end end end local function v53(v192) if ( not v192 or  not v192.Character) then return nil;end if  not v192.Character:FindFirstChild("HumanoidRootPart") then return nil;end v52(v192);local v193,v194=pcall(function() local v285=0 -0 ;local v286;while true do if (v285==(765 -(574 + 191))) then local v414=0 + 0 ;while true do if (v414==(2 -1)) then v285=1 + 0 ;break;end if (v414==(849 -(254 + 595))) then v286=Instance.new("Highlight");v286.Name="ANIM_HL";v414=1;end end end if (2==v285) then v286.FillTransparency=0.3;v286.OutlineTransparency=126 -(55 + 71) ;v285=3;end if (v285==(5 -1)) then v286.DepthMode=Enum.HighlightDepthMode.AlwaysOnTop;return v286;end if (v285==1) then v286.Adornee=v192.Character.HumanoidRootPart;v286.Parent=v192.Character;v285=1792 -(573 + 1217) ;end if (v285==3) then v286.FillColor=shared._animationDetection.highlightColor;v286.OutlineColor=shared._animationDetection.highlightOutline;v285=4;end end end);if  not v193 then local v319=0 -0 ;while true do if (v319==(0 + 0)) then warn("Failed to create highlight for",v192.Name);return nil;end end end local v195,v196=pcall(function() local v287=Instance.new("BillboardGui");v287.Name="ANIM_WARNING";v287.Size=UDim2.new(0 -0 ,989 -(714 + 225) ,0,146 -96 );v287.StudsOffset=Vector3.new(0 -0 ,1.5 + 2 ,0);v287.AlwaysOnTop=true;v287.MaxDistance=144 -44 ;v287.Enabled=true;v287.Adornee=v192.Character.HumanoidRootPart;v287.Parent=v192.Character;local v298=Instance.new("TextLabel");v298.Size=UDim2.new(807 -(118 + 688) ,48 -(25 + 23) ,1 + 0 ,1886 -(927 + 959) );v298.Text="⚠️";v298.TextScaled=true;v298.BackgroundTransparency=3 -2 ;v298.TextColor3=Color3.fromRGB(987 -(16 + 716) ,318 -153 ,0);v298.Font=Enum.Font.SourceSansBold;v298.Parent=v287;return v287;end);if  not v195 then warn("Failed to create billboard for",v192.Name);end return v194;end local v54=v48(v45,"Teleport: Off",Color3.fromRGB(70,167 -(11 + 86) ,170 -100 ));shared._combatGuiRefs.teleportButton=v54;local v56=v48(v45,"Teleport to Platform",Color3.fromRGB(80,405 -(175 + 110) ,504 -304 ));local v57=false;local v58=nil;local v59=Vector3.new(0 -0 , -(2290.5 -(503 + 1293)),0);local function v60() local v197=workspace.CurrentCamera;local v198=game.Players.LocalPlayer;local v199=v198.Character;if  not v199 then return true,"No Character";end if ((v197.CameraSubject==nil) or (v197.CameraSubject.Parent==nil)) then return true,"No CameraSubject";end if  not (v197.CameraSubject:IsA("Humanoid") and (v197.CameraSubject.Parent==v199)) then return true,"Wrong CameraSubject";end if ((v197.CameraType==Enum.CameraType.Scriptable) or (v197.CameraType==Enum.CameraType.Fixed)) then return true,"Locked CameraType";end if (v197.Parent~=workspace) then return true,"Wrong Parent";end return false,nil;end local function v61() local v200=workspace.CurrentCamera;local v201=game.Players.LocalPlayer;local v202=v201.Character;if ( not v202 or  not v202:FindFirstChild("Humanoid")) then return false,"No Character";end local v203=5 -3 ;local v204=0;local v205=false;local v206="";local v207,v208=v60();if  not v207 then return true,"Camera already OK";end while v204<v203  do v204+=1 local v307,v308=v60();if  not v307 then v205=true;break;end v206=v308;if (v204==(1 + 0)) then v200.CameraType=Enum.CameraType.Custom;if v202:FindFirstChild("HumanoidRootPart") then v200.CFrame=CFrame.new(v202.HumanoidRootPart.Position + Vector3.new(1061 -(810 + 251) ,5, -(7 + 3)) ,v202.HumanoidRootPart.Position);end v200.CameraSubject=v202.Humanoid;task.wait(0.2 + 0 );else local v389=0 + 0 ;while true do if (v389==0) then v200.CameraType=Enum.CameraType.Custom;v200.CameraSubject=nil;v389=1;end if (v389==(535 -(43 + 490))) then v200.CameraType=Enum.CameraType.Follow;task.wait(0.2);break;end if (v389==(734 -(711 + 22))) then task.wait(0.1);v200.CameraSubject=v202.Humanoid;v389=7 -5 ;end end end task.wait(0.2);end local v209,v210=v60();if  not v209 then v205=true;else v206=v210;end return v205,v206;end local function v62() local v211=0;while true do if (v211==0) then if  not v57 then local v465=859 -(240 + 619) ;while true do local v506=0;while true do if (v506==(1 + 0)) then if (v465==(0 -0)) then v58=Instance.new("Part");v58.Name="SafePlatform_Lio";v58.Size=Vector3.new(67 + 933 ,2,1000);v465=1745 -(1344 + 400) ;end if (v465==1) then v58.Position=Vector3.new(0, -500,0);v58.Anchored=true;v58.CanCollide=true;v465=407 -(255 + 150) ;end break;end if (v506==0) then if (v465==(2 + 0)) then v58.Transparency=0.5 + 0 ;v58.Color=Color3.fromRGB(0 -0 ,549 -379 ,255);v58.Parent=workspace;v465=1742 -(404 + 1335) ;end if (v465==(409 -(183 + 223))) then v57=true;return true;end v506=1;end end end end return false;end end end v56.MouseButton1Click:Connect(function() if  not v57 then local v320=0;while true do if (v320==(0 -0)) then v58=Instance.new("Part");v58.Name="SafePlatform_Lio";v58.Size=Vector3.new(1000,2 + 0 ,360 + 640 );v58.Position=Vector3.new(337 -(10 + 327) , -(349 + 151),0);v320=339 -(118 + 220) ;end if ((1 + 2)==v320) then local v469=0;while true do if (v469==(449 -(108 + 341))) then task.wait(2);v56.Text="Teleport to Platform";v469=1 + 0 ;end if (v469==1) then v56.BackgroundColor3=Color3.fromRGB(338 -258 ,1613 -(711 + 782) ,383 -183 );return;end end end if (v320==(470 -(270 + 199))) then v58.Anchored=true;v58.CanCollide=true;v58.Transparency=0.5 + 0 ;v58.Color=Color3.fromRGB(1819 -(580 + 1239) ,505 -335 ,244 + 11 );v320=1 + 1 ;end if ((1 + 1)==v320) then v58.Parent=workspace;v57=true;v56.Text="Platform Created";v56.BackgroundColor3=Color3.fromRGB(0 -0 ,150,0 + 0 );v320=1170 -(645 + 522) ;end end end if shared._combatSettings.teleportOn then local v321=0;local v322;while true do if (v321==0) then v322=1790 -(1010 + 780) ;while true do if ((0 + 0)==v322) then shared._combatSettings.teleportOn=false;v54.Text="Teleport: Off";v322=1;end if ((4 -3)==v322) then v54.BackgroundColor3=Color3.fromRGB(205 -135 ,70,70);break;end end break;end end end task.wait(1836.1 -(1045 + 791) );local v212=v1.Character;if (v212 and v212:FindFirstChild("HumanoidRootPart")) then if (v212.PrimaryPart==nil) then v212.PrimaryPart=v212.HumanoidRootPart;end v56.Text="Teleporting...";v56.BackgroundColor3=Color3.fromRGB(506 -306 ,152 -52 ,505 -(351 + 154) );v212:SetPrimaryPartCFrame(CFrame.new(v59));local v325=v212.HumanoidRootPart;for v390,v391 in pairs(v212:GetDescendants()) do if (v391:IsA("BodyVelocity") or v391:IsA("BodyAngularVelocity") or v391:IsA("BodyForce") or v391:IsA("BodyThrust")) then v391:Destroy();end end if v325:IsA("BasePart") then local v429=0;local v430;while true do if (v429==(1574 -(1281 + 293))) then v430=266 -(28 + 238) ;while true do if (v430==(2 -1)) then v325.AssemblyLinearVelocity=Vector3.new(0,1559 -(1381 + 178) ,0 + 0 );v325.AssemblyAngularVelocity=Vector3.new(0 + 0 ,0 + 0 ,0);break;end if (v430==(0 -0)) then v325.Velocity=Vector3.new(0,0,0);v325.RotVelocity=Vector3.new(0,0 + 0 ,470 -(381 + 89) );v430=1 + 0 ;end end break;end end end task.wait(0.05 + 0 );if v325:IsA("BasePart") then v325.Velocity=Vector3.new(0,0 -0 ,1156 -(1074 + 82) );v325.RotVelocity=Vector3.new(0,0 -0 ,0);end local v326=workspace.CurrentCamera;if ((v326.CameraSubject==nil) or (v326.CameraSubject.Parent==nil)) then v326.CameraSubject=v212.Humanoid;elseif  not (v326.CameraSubject:IsA("Humanoid") and (v326.CameraSubject.Parent==v212)) then v326.CameraSubject=v212.Humanoid;end if ((v326.CameraType==Enum.CameraType.Scriptable) or (v326.CameraType==Enum.CameraType.Fixed)) then v326.CameraType=Enum.CameraType.Custom;end v56.Text="Teleported Successfully!";v56.BackgroundColor3=Color3.fromRGB(1784 -(214 + 1570) ,180,1455 -(990 + 465) );else local v327=0;while true do if (v327==0) then v56.Text="No Character!";v56.BackgroundColor3=Color3.fromRGB(62 + 88 ,0,0 + 0 );break;end end end task.wait(2 + 0 );v56.Text="Teleport to Platform";v56.BackgroundColor3=Color3.fromRGB(80,120,787 -587 );end);local v63=v48(v45,"Go to Friend",Color3.fromRGB(1806 -(1668 + 58) ,746 -(512 + 114) ,521 -321 ));local v64=0;local v65={};local function v66() local v215=0 -0 ;while true do if (v215==0) then v65={};for v437,v438 in ipairs(v0:GetPlayers()) do if ((v438~=v1) and v1:IsFriendsWith(v438.UserId)) then if (v438.Character and v438.Character:FindFirstChild("HumanoidRootPart")) then local v563=0 -0 ;local v564;while true do if (v563==0) then v564=v438.Character:FindFirstChildOfClass("Humanoid");if (v564 and (v564.Health>(0 + 0))) then table.insert(v65,v438);end break;end end end end end break;end end end v63.MouseButton1Click:Connect(function() if shared._combatSettings.teleportOn then local v328=0 + 0 ;local v329;while true do if (v328==(0 + 0)) then v329=0;while true do if (v329==(3 -2)) then v54.BackgroundColor3=Color3.fromRGB(2064 -(109 + 1885) ,1539 -(1269 + 200) ,134 -64 );break;end if (v329==(815 -(98 + 717))) then shared._combatSettings.teleportOn=false;v54.Text="Teleport: Off";v329=1;end end break;end end end v66();if ( #v65==(826 -(802 + 24))) then local v330=0;local v331;while true do if (v330==(0 -0)) then v331=0 -0 ;while true do if (v331==1) then task.wait(1 + 1 );v63.Text="Go to Friend";v331=2 + 0 ;end if (v331==(1 + 1)) then v63.BackgroundColor3=Color3.fromRGB(80,26 + 94 ,556 -356 );return;end if (v331==(0 -0)) then v63.Text="No Friends Online!";v63.BackgroundColor3=Color3.fromRGB(54 + 96 ,0,0);v331=1;end end break;end end end v64=(v64% #v65) + 1 + 0 ;local v216=v65[v64];task.wait(0.1 + 0 );local v217=v1.Character;if (v217 and v217:FindFirstChild("HumanoidRootPart")) then if (v217.PrimaryPart==nil) then v217.PrimaryPart=v217.HumanoidRootPart;end local v332=v217.HumanoidRootPart;if v332:IsA("BasePart") then local v441=0 + 0 ;while true do if ((0 + 0)==v441) then v332.Velocity=Vector3.new(1433 -(797 + 636) ,0 -0 ,1619 -(1427 + 192) );v332.RotVelocity=Vector3.new(0 + 0 ,0 -0 ,0 + 0 );break;end end end local v333=workspace.CurrentCamera;local v334=v216.Character.HumanoidRootPart.Position;local v335=Vector3.new(0,3,0 + 0 );local v336=v334 + v335 ;v217:SetPrimaryPartCFrame(CFrame.new(v336));task.wait(326.05 -(192 + 134) );if v332:IsA("BasePart") then v332.Velocity=Vector3.new(1276 -(316 + 960) ,0 + 0 ,0 + 0 );v332.RotVelocity=Vector3.new(0,0,0 + 0 );end if ((v333.CameraSubject==nil) or (v333.CameraSubject.Parent==nil)) then v333.CameraSubject=v217.Humanoid;elseif  not (v333.CameraSubject:IsA("Humanoid") and (v333.CameraSubject.Parent==v217)) then v333.CameraSubject=v217.Humanoid;end if ((v333.CameraType==Enum.CameraType.Scriptable) or (v333.CameraType==Enum.CameraType.Fixed)) then v333.CameraType=Enum.CameraType.Custom;end v63.Text="Teleported to "   .. v216.Name   .. " ("   .. v64   .. "/"   ..  #v65   .. ")" ;v63.BackgroundColor3=Color3.fromRGB(0 -0 ,701 -(83 + 468) ,1806 -(1202 + 604) );else local v339=0 -0 ;while true do if (v339==(0 -0)) then v63.Text="No Character!";v63.BackgroundColor3=Color3.fromRGB(150,0 -0 ,0);break;end end end task.wait(328 -(45 + 280) );v63.Text="Go to Friend";v63.BackgroundColor3=Color3.fromRGB(80,116 + 4 ,200);end);local v67=v48(v45,"Reset Character",Color3.fromRGB(150,44 + 6 ,19 + 31 ));v67.MouseButton1Click:Connect(function() local v220=v1.Character and v1.Character:FindFirstChildOfClass("Humanoid") ;if v220 then v220.Health=0 + 0 ;end end);local v68=Instance.new("TextBox",v45);v68.Size=UDim2.new(1, -(4 + 16),0,64 -29 );v68.Text="";v68.PlaceholderText="Targeter (Username or DisplayName)";v68.BackgroundColor3=Color3.fromRGB(1991 -(340 + 1571) ,32 + 48 ,1852 -(1733 + 39) );v68.TextColor3=Color3.new(1,1,2 -1 );v68.PlaceholderColor3=Color3.fromRGB(1214 -(125 + 909) ,2128 -(1096 + 852) ,81 + 99 );v68.TextScaled=true;v68.ClearTextOnFocus=false;Instance.new("UICorner",v68).CornerRadius=UDim.new(0,7 -1 );Instance.new("UIStroke",v68).Color=Color3.fromRGB(97 + 3 ,100,612 -(409 + 103) );v68.FocusLost:Connect(function() shared._combatSettings.targetName=v68.Text;end);local v79=Instance.new("TextBox",v45);v79.Size=UDim2.new(237 -(46 + 190) , -(115 -(51 + 44)),0,35);v79.PlaceholderText="Enter name to ignore";v79.BackgroundColor3=Color3.fromRGB(60,60,60);v79.TextColor3=Color3.new(1 + 0 ,1318 -(1114 + 203) ,727 -(228 + 498) );v79.PlaceholderColor3=Color3.fromRGB(39 + 141 ,180,100 + 80 );v79.TextScaled=true;Instance.new("UICorner",v79).CornerRadius=UDim.new(663 -(174 + 489) ,15 -9 );Instance.new("UIStroke",v79).Color=Color3.fromRGB(80,1985 -(830 + 1075) ,604 -(303 + 221) );local v88=Instance.new("Frame",v45);v88.Size=UDim2.new(1, -(1289 -(231 + 1038)),0 + 0 ,1262 -(171 + 991) );v88.BackgroundColor3=Color3.fromRGB(35,144 -109 ,35);Instance.new("UICorner",v88).CornerRadius=UDim.new(0 -0 ,14 -8 );Instance.new("UIStroke",v88).Color=Color3.fromRGB(60,49 + 11 ,60);local v93=Instance.new("UIListLayout",v88);v93.SortOrder=Enum.SortOrder.LayoutOrder;v93.Padding=UDim.new(0 -0 ,3);local function v97() local v223=0 -0 ;while true do if (v223==0) then for v448,v449 in ipairs(v88:GetChildren()) do if v449:IsA("TextButton") then v449:Destroy();end end for v450,v451 in ipairs(v7) do local v452=v48(v88,v451,Color3.fromRGB(128 -48 ,123 -83 ,1288 -(111 + 1137) ));v452.Size=UDim2.new(159 -(91 + 67) , -10,0,74 -49 );v452.TextScaled=true;v452.MouseButton1Click:Connect(function() for v511,v512 in ipairs(v7) do if (v512==v451) then table.remove(v7,v511);v97();break;end end end);end break;end end end v79.FocusLost:Connect(function() local v224=0;local v225;while true do if ((0 + 0)==v224) then local v392=523 -(423 + 100) ;while true do if (v392==0) then v225=v79.Text;if (v225=="") then return;end v392=1 + 0 ;end if (v392==1) then v224=1;break;end end end if (v224==(2 -1)) then if  not table.find(v7,v225) then local v481=0;local v482;while true do if (v481==(0 + 0)) then v482=771 -(326 + 445) ;while true do if (v482==0) then table.insert(v7,v225);v97();break;end end break;end end end v79.Text="";break;end end end);v0.PlayerRemoving:Connect(function(v226) for v309= #v7,4 -3 , -(2 -1) do if (v7[v309]==v226.Name) then table.remove(v7,v309);v97();end end end);v50(v46,"Team Check","teamCheck");v50(v46,"Friend Check","friendCheck");v50(v46,"Ragdoll Check","ragdollCheck");v50(v46,"Dodge","dodge");v50(v46,"Lock Target","lockTarget");v50(v46,"One Time Kill","oneTimeKill");v50(v46,"Lowest Health","lowestHealth");local v98=v48(v46,"Omni Detector: On",Color3.fromRGB(186 -106 ,831 -(530 + 181) ,961 -(614 + 267) ));local v99=v48(v46,"Escape Omni: Off",Color3.fromRGB(152 -(19 + 13) ,80,130 -50 ));v98.MouseButton1Click:Connect(function() local v227=0;while true do if (v227==(2 -1)) then v98.BackgroundColor3=(shared._animationDetection.enabled and Color3.fromRGB(80,342 -222 ,21 + 59 )) or Color3.fromRGB(105 -45 ,60,124 -64 ) ;if  not shared._animationDetection.enabled then local v483=0;local v484;while true do if (v483==(1812 -(1293 + 519))) then v484=0 -0 ;while true do if (v484==0) then for v614,v615 in pairs(shared._animationDetection.activeHighlights) do local v616=0;local v617;while true do if (v616==(0 -0)) then v617=v0:FindFirstChild(v614);if (v617 and v617.Character) then v52(v617);end break;end end end shared._animationDetection.activeHighlights={};break;end end break;end end end break;end if (v227==(0 -0)) then shared._animationDetection.enabled= not shared._animationDetection.enabled;v98.Text="Omni Detector: "   .. ((shared._animationDetection.enabled and "On") or "Off") ;v227=4 -3 ;end end end);v99.MouseButton1Click:Connect(function() local v228=0 -0 ;while true do if (v228==(1 + 0)) then v99.BackgroundColor3=(shared._animationDetection.autoEscape and Color3.fromRGB(25 + 95 ,185 -105 ,19 + 61 )) or Color3.fromRGB(60,20 + 40 ,60) ;break;end if (v228==0) then shared._animationDetection.autoEscape= not shared._animationDetection.autoEscape;v99.Text="Escape Omni: "   .. ((shared._animationDetection.autoEscape and "On") or "Off") ;v228=1 + 0 ;end end end);v51();local v100=Instance.new("Frame",v8);v100.Size=UDim2.new(0,240,1096 -(709 + 387) ,1903 -(673 + 1185) );v100.Position=UDim2.new(0.65,0 -0 ,0.2,0);v100.BackgroundColor3=Color3.fromRGB(128 -88 ,65 -25 ,29 + 11 );v100.BorderSizePixel=0;v100.Active=true;v100.Draggable=true;Instance.new("UICorner",v100).CornerRadius=UDim.new(0 + 0 ,8);Instance.new("UIStroke",v100).Color=Color3.fromRGB(81 -21 ,15 + 45 ,119 -59 );shared._combatSettings.teleportDistance=shared._combatSettings.teleportDistance or (7 -3) ;shared._combatSettings.teleportUp=shared._combatSettings.teleportUp or (1882 -(446 + 1434)) ;local v111=Instance.new("TextButton",v100);v111.Size=UDim2.new(1284 -(1040 + 243) , -10,2 -1 , -(1857 -(559 + 1288)));v111.Position=UDim2.new(1931 -(609 + 1322) ,459 -(13 + 441) ,0 -0 ,13 -8 );v111.Text="Position: Risky";v111.BackgroundColor3=Color3.fromRGB(747 -597 ,0 + 0 ,0);v111.TextColor3=Color3.new(1,3 -2 ,1);v111.TextScaled=true;Instance.new("UICorner",v111).CornerRadius=UDim.new(0,3 + 3 );Instance.new("UIStroke",v111).Color=Color3.fromRGB(80,36 + 44 ,80);local function v120() if (v111.Text=="Position: Risky") then shared._combatSettings.teleportDistance=0 -0 ;shared._combatSettings.teleportUp=17 + 13 ;v111.Text="Position: Safe";v111.BackgroundColor3=Color3.fromRGB(0,275 -125 ,0 + 0 );else local v345=0 + 0 ;while true do if (v345==1) then v111.Text="Position: Risky";v111.BackgroundColor3=Color3.fromRGB(150,0 + 0 ,0);break;end if (v345==(0 + 0)) then shared._combatSettings.teleportDistance=4 + 0 ;shared._combatSettings.teleportUp=435 -(153 + 280) ;v345=2 -1 ;end end end end v111.MouseButton1Click:Connect(v120);v11:GetPropertyChangedSignal("Visible"):Connect(function() v100.Visible=v11.Visible;end);v100.Visible=v11.Visible;local v123=Instance.new("TextButton",v11);v123.Size=UDim2.new(0,23 + 2 ,0 + 0 ,14 + 11 );v123.Position=UDim2.new(1 + 0 , -30,0 + 0 ,2);v123.Text="✖";v123.TextColor3=Color3.new(1 -0 ,0.3 + 0 ,0.3);v123.BackgroundColor3=Color3.fromRGB(727 -(89 + 578) ,0 + 0 ,0 -0 );v123.TextScaled=true;Instance.new("UICorner",v123).CornerRadius=UDim.new(0,6);local v131=Instance.new("TextButton",v8);v131.Size=UDim2.new(0,1149 -(572 + 477) ,0 + 0 ,35);v131.Position=UDim2.new(0 + 0 ,2 + 8 ,86 -(84 + 2) ,16 -6 );v131.Text="Open GUI";v131.BackgroundColor3=Color3.fromRGB(0,58 + 22 ,842 -(497 + 345) );v131.TextColor3=Color3.new(1 + 0 ,1,1 + 0 );v131.TextScaled=true;v131.Visible=false;Instance.new("UICorner",v131).CornerRadius=UDim.new(0,6);Instance.new("UIStroke",v131).Color=Color3.fromRGB(1333 -(605 + 728) ,86 + 34 ,0 -0 );v123.MouseButton1Click:Connect(function() local v231=0 + 0 ;while true do if (v231==(3 -2)) then v131.Visible=true;break;end if (v231==0) then v11.Visible=false;v100.Visible=false;v231=1 + 0 ;end end end);v131.MouseButton1Click:Connect(function() local v232=0;local v233;while true do if (v232==(0 -0)) then v233=0 + 0 ;while true do if (v233==(489 -(457 + 32))) then v11.Visible=true;v100.Visible=true;v233=1;end if ((1 + 0)==v233) then v131.Visible=false;break;end end break;end end end);local function v141(v234) local v235;local v236={};local function v237() if ( not v234 or  not v234.Character) then return;end local v310=v234.Character:FindFirstChildOfClass("Humanoid");if  not v310 then return;end local v311=v310:FindFirstChildOfClass("Animator");if  not v311 then return;end for v346,v347 in pairs(v311:GetPlayingAnimationTracks()) do local v348=1402 -(832 + 570) ;local v349;while true do if ((0 + 0)==v348) then v349=v347.Animation;if v349 then local v537=0;local v538;while true do if (v537==0) then v538=tonumber(v349.AnimationId:match("%d+"));if (v538 and table.find(shared._animationDetection.animationIds,v538)) then if  not v236[v538] then if  not shared._animationDetection.activeHighlights[v234.Name] then shared._animationDetection.activeHighlights[v234.Name]={endTime=tick() + shared._animationDetection.highlightDuration ,animationId=v538,firstDetected=tick(),lastEscapeTime=0 + 0 };else shared._animationDetection.activeHighlights[v234.Name].endTime=tick() + shared._animationDetection.highlightDuration ;shared._animationDetection.activeHighlights[v234.Name].animationId=v538;end v236[v538]=true;end end break;end end end break;end end end for v350,v351 in pairs(v236) do local v352=0 -0 ;local v353;while true do if (v352==(0 + 0)) then v353=false;for v517,v518 in pairs(v311:GetPlayingAnimationTracks()) do local v519=v518.Animation;if v519 then local v572=tonumber(v519.AnimationId:match("%d+"));if (v572==v350) then v353=true;break;end end end v352=797 -(588 + 208) ;end if (v352==(2 -1)) then if  not v353 then v236[v350]=nil;end break;end end end end v235=v2.Heartbeat:Connect(v237);v234:GetPropertyChangedSignal("Character"):Connect(function() local v312=0;while true do if (0==v312) then v52(v234);v236={};break;end end end);v234.AncestryChanged:Connect(function() if  not v234:IsDescendantOf(game) then if v235 then v235:Disconnect();end v52(v234);shared._animationDetection.activeHighlights[v234.Name]=nil;end end);end for v238,v239 in ipairs(v0:GetPlayers()) do v141(v239);end v0.PlayerAdded:Connect(function(v240) local v241=1800 -(884 + 916) ;while true do if (v241==0) then task.wait(1 -0 );v141(v240);break;end end end);local v142={};local function v143() local v242=0 + 0 ;while true do if (v242==(653 -(232 + 421))) then v142={};for v455,v456 in ipairs(v0:GetPlayers()) do if ((v456~=v1) and v1:IsFriendsWith(v456.UserId)) then v142[v456.Name]=true;end end break;end end end v143();v0.PlayerAdded:Connect(function(v243) task.wait(1890 -(1569 + 320) );if v1:IsFriendsWith(v243.UserId) then v142[v243.Name]=true;end end);v0.PlayerRemoving:Connect(function(v244) v142[v244.Name]=nil;end);local function v144(v246) if v246 then local v355=0;local v356;local v357;while true do if (v355==2) then if (v356 and ( #v356>(0 + 0))) then local v540=0 + 0 ;local v541;while true do if (v540==(0 -0)) then v541=v246.Name:lower():find(v356:lower(),606 -(316 + 289) ,true) or (v246.DisplayName and v246.DisplayName:lower():find(v356:lower(),2 -1 ,true)) ;if  not v541 then return false;end break;end end end if ( not v246.Character or  not v246.Character:FindFirstChild("HumanoidRootPart")) then return false;end v355=3;end if (v355==(1 + 0)) then if (shared._combatSettings.teamCheck and (v246.Team==v1.Team)) then return false;end v356=shared._combatSettings.targetName or "" ;v355=2;end if (v355==(1456 -(666 + 787))) then v357=v246.Character:FindFirstChildOfClass("Humanoid");if ( not v357 or (v357.Health<=(425 -(360 + 65)))) then return false;end v355=4 + 0 ;end if (v355==0) then if (v246==v1) then return false;end if (shared._combatSettings.friendCheck and v142[v246.Name]) then return false;end v355=255 -(79 + 175) ;end if (v355==(5 -1)) then for v521,v522 in ipairs(v7) do local v523=0;local v524;while true do if (v523==(0 + 0)) then v524=v522:lower();if (v246.Name:lower():find(v524,2 -1 ,true) or (v246.DisplayName and v246.DisplayName:lower():find(v524,1 -0 ,true))) then return false;end break;end end end return true;end end end return false;end local function v145() local v247,v248=nil,math.huge;local v249=v1.Character and v1.Character:FindFirstChild("HumanoidRootPart") and v1.Character.HumanoidRootPart.Position ;if  not v249 then return nil;end for v313,v314 in ipairs(v0:GetPlayers()) do if v144(v314) then local v404=899 -(503 + 396) ;local v405;while true do if (v404==(181 -(92 + 89))) then v405=(v249-v314.Character.HumanoidRootPart.Position).Magnitude;if (v405<v248) then local v573=0;while true do if (v573==(0 -0)) then v247=v314;v248=v405;break;end end end break;end end end end return v247;end local function v146() local v250,v251=nil,math.huge;local v252=v1.Character and v1.Character:FindFirstChild("HumanoidRootPart") and v1.Character.HumanoidRootPart.Position ;if  not v252 then return nil;end for v315,v316 in ipairs(v0:GetPlayers()) do if v144(v316) then local v406=v316.Character:FindFirstChildOfClass("Humanoid");if (v406 and (v406.Health<v251)) then v250=v316;v251=v406.Health;end end end return v250;end local function v147(v253) local v254=0 + 0 ;while true do local v317=0 + 0 ;while true do if ((0 -0)==v317) then if ((0 + 0)==v254) then v253=v253:lower();for v542,v543 in ipairs(v0:GetPlayers()) do if (v543~=v1) then if (v543.Name:lower():find(v253,2 -1 ,true) or (v543.DisplayName and v543.DisplayName:lower():find(v253,1 + 0 ,true))) then return v543;end end end v254=1 + 0 ;end if ((2 -1)==v254) then return nil;end break;end end end end local function v148() local v255=0 + 0 ;while true do if (v255==(0 -0)) then for v457,v458 in ipairs(v0:GetPlayers()) do if v144(v458) then return true;end end return false;end end end local function v149(v256,v257) if (v256 and v256:FindFirstChild("HumanoidRootPart")) then local v358=0;local v359;while true do if (v358==0) then v359=1244 -(485 + 759) ;while true do if (v359==(0 -0)) then if (v256.PrimaryPart==nil) then v256.PrimaryPart=v256.HumanoidRootPart;end v256:SetPrimaryPartCFrame(v257);break;end end break;end end end end local v150=50;local v151=(v1.Character and v1.Character:FindFirstChildOfClass("Humanoid") and v1.Character:FindFirstChildOfClass("Humanoid").Health) or (1289 -(442 + 747)) ;local v152=nil;local v153=0;local v154=shared._combatSettings.teleportDistance;local function v155(v258) local v259=0;local v260;while true do if (v259==0) then v260=1135 -(832 + 303) ;while true do if ((947 -(88 + 858))==v260) then v151=v258;break;end if (v260==0) then if  not shared._combatSettings.dodge then return;end if (v258<v151) then local v574=v1.Character;if (v574 and v574:FindFirstChild("HumanoidRootPart")) then if shared._combatSettings.teleportOn then local v618=0;while true do if (0==v618) then v153=1.5;shared._combatSettings.teleportDistance=v154 + v150 ;break;end end else local v619=0 + 0 ;local v620;while true do if (v619==(1 + 0)) then task.delay(1.5 + 0 ,function() v152=nil;end);break;end if (v619==(789 -(766 + 23))) then local v632=0 -0 ;while true do if ((0 -0)==v632) then v620=v574.HumanoidRootPart;v152=v620.Position-(v620.CFrame.LookVector * v150) ;v632=2 -1 ;end if (v632==(3 -2)) then v619=1;break;end end end end end end end v260=1074 -(1036 + 37) ;end end break;end end end v1.CharacterAdded:Connect(function(v261) local v262=0 + 0 ;local v263;while true do if (v262==(1 -0)) then v263.HealthChanged:Connect(v155);break;end if ((0 + 0)==v262) then v263=v261:WaitForChild("Humanoid");v151=v263.Health;v262=1481 -(641 + 839) ;end end end);if v1.Character then local v318=v1.Character:FindFirstChildOfClass("Humanoid");if v318 then local v408=0;while true do if (v408==0) then v151=v318.Health;v318.HealthChanged:Connect(v155);break;end end end end local function v156() local v264=913 -(910 + 3) ;local v265;local v266;local v267;while true do if (v264==(0 -0)) then v265=1684 -(1466 + 218) ;v266=nil;v264=1;end if (v264==(1 + 0)) then v267=nil;while true do if (v265==2) then local v527=1148 -(556 + 592) ;while true do if (v527==(0 + 0)) then for v599,v600 in pairs(v266:GetChildren()) do if tostring(v600.Name):lower():find("ragdoll") then return true;end end return false;end end end if (v265==(809 -(329 + 479))) then local v528=854 -(174 + 680) ;while true do if (v528==(3 -2)) then v265=3 -1 ;break;end if (v528==0) then v267=v266:FindFirstChildOfClass("Humanoid");if v267 then local v612=0 + 0 ;while true do if (v612==(739 -(396 + 343))) then if (v267:GetState()==Enum.HumanoidStateType.Physics) then return true;end if v267.PlatformStand then return true;end break;end end end v528=1 + 0 ;end end end if (v265==(1477 -(29 + 1448))) then local v529=0;while true do if (v529==(1389 -(135 + 1254))) then v266=v1.Character;if  not v266 then return false;end v529=1;end if (v529==1) then v265=1;break;end end end end break;end end end local v157=nil;local v158=nil;local v159=false;local v160=false;local v161=nil;local v162=false;local v163=0 -0 ;local function v164() if v161 then local v360=0 -0 ;while true do if (v360==(0 + 0)) then v54.Text="Teleport: Off ("   .. v161   .. ")" ;v54.BackgroundColor3=Color3.fromRGB(1677 -(389 + 1138) ,624 -(102 + 472) ,50);break;end end else local v361=0;local v362;while true do if (v361==0) then v362=0;while true do if (v362==(0 + 0)) then v54.Text="Teleport: "   .. ((shared._combatSettings.teleportOn and "On") or "Off") ;v54.BackgroundColor3=(shared._combatSettings.teleportOn and Color3.fromRGB(45 + 35 ,112 + 8 ,1625 -(320 + 1225) )) or Color3.fromRGB(70,70,124 -54 ) ;break;end end break;end end end end v54.MouseButton1Click:Connect(function() if v161 then local v363=0;while true do if (v363==(2 + 1)) then v164();v158=selectTarget();v363=1468 -(157 + 1307) ;end if (v363==2) then v162=true;v163=tick();v363=3;end if ((1863 -(821 + 1038))==v363) then v157=v158;break;end if (v363==1) then v160=false;v159=false;v363=2;end if (v363==(0 -0)) then v161=nil;shared._combatSettings.teleportOn=true;v363=1;end end else local v364=0;while true do if (v364==(1 + 1)) then if  not shared._combatSettings.teleportOn then local v544=0;local v545;while true do if (v544==(0 -0)) then v545=0 + 0 ;while true do if (v545==(0 -0)) then v157=nil;v158=nil;break;end end break;end end end break;end if (v364==1) then if shared._combatSettings.teleportOn then v162=true;v163=tick();else v162=false;end v164();v364=1028 -(834 + 192) ;end if (v364==0) then shared._combatSettings.teleportOn= not shared._combatSettings.teleportOn;v160= not shared._combatSettings.teleportOn;v364=1 + 0 ;end end end end);v1.CharacterAdded:Connect(function() v161=nil;v160=false;v164();v143();end);local function v165() local v268=0;local v269;while true do if (v268==(0 + 0)) then v269=shared._combatSettings.targetName;if (v269 and ( #v269>(0 + 0))) then return v147(v269);elseif shared._combatSettings.lowestHealth then return v146();else return v145();end break;end end end local function v166() local v270=0 -0 ;local v271;local v272;while true do if ((304 -(300 + 4))==v270) then if  not shared._animationDetection.enabled then return;end v271=tick();v270=1 + 0 ;end if (v270==(5 -3)) then for v459,v460 in pairs(shared._animationDetection.activeHighlights) do local v461=v0:FindFirstChild(v459);if (v461 and v461.Character and v461.Character:FindFirstChild("HumanoidRootPart")) then v53(v461);if (shared._animationDetection.autoEscape and (v461~=v1) and v272) then local v577=v461.Character.HumanoidRootPart.Position;if v577 then local v601=(v272-v577).Magnitude;if (v601<=shared._animationDetection.detectionRange) then local v621=tick();if ( not v460.lastEscapeTime or ((v621-v460.lastEscapeTime)>(365 -(112 + 250)))) then local v627=0;local v628;local v629;while true do if (v627==4) then if (v629 and v629:FindFirstChild("HumanoidRootPart")) then if (v629.PrimaryPart==nil) then v629.PrimaryPart=v629.HumanoidRootPart;end local v646=v629.HumanoidRootPart;for v652,v653 in pairs(v629:GetDescendants()) do if (v653:IsA("BodyVelocity") or v653:IsA("BodyAngularVelocity") or v653:IsA("BodyForce") or v653:IsA("BodyThrust")) then pcall(function() v653:Destroy();end);end end if v646:IsA("BasePart") then local v656=0 + 0 ;local v657;while true do if (v656==0) then v657=0 -0 ;while true do if ((1 + 0)==v657) then v646.AssemblyLinearVelocity=Vector3.new(0,0 + 0 ,0 + 0 );v646.AssemblyAngularVelocity=Vector3.new(0,0 + 0 ,0 + 0 );break;end if (v657==(1414 -(1001 + 413))) then v646.Velocity=Vector3.new(0 -0 ,882 -(244 + 638) ,693 -(627 + 66) );v646.RotVelocity=Vector3.new(0,0 -0 ,602 -(512 + 90) );v657=1;end end break;end end end v629:SetPrimaryPartCFrame(CFrame.new(v59));task.wait(0.05);if v646:IsA("BasePart") then local v658=1906 -(1665 + 241) ;while true do if (v658==(717 -(373 + 344))) then v646.Velocity=Vector3.new(0 + 0 ,0,0 + 0 );v646.RotVelocity=Vector3.new(0 -0 ,0 -0 ,1099 -(35 + 1064) );break;end end end v460.endTime=tick() + shared._animationDetection.highlightDuration ;v56.Text="Auto Escaped!";v56.BackgroundColor3=Color3.fromRGB(0 + 0 ,385 -205 ,0 + 0 );task.wait(1238 -(298 + 938) );v56.Text=v628;v56.BackgroundColor3=Color3.fromRGB(1339 -(233 + 1026) ,1786 -(636 + 1030) ,200);end break;end if (v627==(0 + 0)) then v460.lastEscapeTime=v621;if shared._combatSettings.teleportOn then local v650=0;local v651;while true do if (v650==0) then v651=0;while true do if ((1 + 0)==v651) then v54.BackgroundColor3=Color3.fromRGB(70,21 + 49 ,70);break;end if (v651==(0 + 0)) then shared._combatSettings.teleportOn=false;v54.Text="Teleport: Off";v651=222 -(55 + 166) ;end end break;end end end v627=1 + 0 ;end if (v627==(1 + 1)) then v56.Text="Auto Escaping...";v56.BackgroundColor3=Color3.fromRGB(763 -563 ,397 -(36 + 261) ,0 -0 );v627=1371 -(34 + 1334) ;end if (v627==(2 + 1)) then task.wait(0.1);v629=v1.Character;v627=4 + 0 ;end if (v627==(1284 -(1035 + 248))) then v62();v628=v56.Text;v627=23 -(20 + 1) ;end end end end end end else shared._animationDetection.activeHighlights[v459]=nil;end end break;end if (v270==1) then v272=v1.Character and v1.Character:FindFirstChild("HumanoidRootPart") and v1.Character.HumanoidRootPart.Position ;for v462,v463 in pairs(shared._animationDetection.activeHighlights) do if (v271>v463.endTime) then local v531=v0:FindFirstChild(v462);if v531 then v52(v531);end shared._animationDetection.activeHighlights[v462]=nil;end end v270=2;end end end local function v167() local v273=0 + 0 ;local v274;while true do if (v273==(319 -(134 + 185))) then v274=1133 -(549 + 584) ;while true do if (v274==0) then if (shared._combatSettings.teleportOn and  not v160) then local v578=685 -(314 + 371) ;while true do if (v578==1) then if  not v148() then if (v161~="No Target") then v161="No Target";v164();end return true;end break;end if (v578==(0 -0)) then if (v162 and ((tick() -v163)<0.5)) then return false;end v162=false;v578=1;end end end return false;end end break;end end end v2.Heartbeat:Connect(function() local v275=968 -(478 + 490) ;local v276;local v277;local v278;local v279;while true do if (0==v275) then v166();if (v153>(0 + 0)) then local v495=1172 -(786 + 386) ;local v496;while true do if (v495==0) then v496=0;while true do if (v496==0) then v153=math.max(0 -0 ,v153-v2.Heartbeat:Wait() );if (v153==(1379 -(1055 + 324))) then shared._combatSettings.teleportDistance=v154;end break;end end break;end end end v275=1341 -(1093 + 247) ;end if (v275==(1 + 0)) then v276=v1.Character;v277=v276 and v276:FindFirstChildOfClass("Humanoid") ;v275=2;end if (v275==4) then if (shared._combatSettings.teleportOn and  not v160 and v148()) then if  not v158 then v158=v165();end if (shared._combatSettings.oneTimeKill and v158) then local v546=0 + 0 ;local v547;while true do if (v546==(0 -0)) then v547=v158.Character and v158.Character:FindFirstChildOfClass("Humanoid") ;if ( not v547 or (v547.Health<=0)) then if shared._combatSettings.oneTimeKill then local v630=0 -0 ;while true do if (v630==(5 -3)) then v157=nil;v158=nil;v630=7 -4 ;end if (v630==(1 + 0)) then v161="Target Down";v164();v630=7 -5 ;end if (v630==(10 -7)) then return;end if (v630==0) then shared._combatSettings.teleportOn=false;v159=true;v630=1 + 0 ;end end end end break;end end end if shared._combatSettings.lockTarget then if (v158 and v144(v158)) then v157=v158;elseif  not shared._combatSettings.oneTimeKill then local v613=0 -0 ;while true do if (v613==(688 -(364 + 324))) then v158=v165();v157=v158;break;end end end elseif  not shared._combatSettings.oneTimeKill then local v581=0;local v582;while true do if (v581==0) then v582=0 -0 ;while true do if (v582==(0 -0)) then v158=v165();v157=v158;break;end end break;end end end if (v157 and v157.Character and v157.Character:FindFirstChild("HumanoidRootPart")) then local v548=v1.Character;if (v548 and v548:FindFirstChild("HumanoidRootPart")) then local v583=0 + 0 ;local v584;local v585;local v586;local v587;while true do if (v583==(0 -0)) then local v622=0 -0 ;while true do if (1==v622) then v583=1;break;end if (v622==(0 -0)) then v584=v157.Character.HumanoidRootPart;v585=shared._combatSettings.teleportDistance;v622=1269 -(1249 + 19) ;end end end if (v583==(1 + 0)) then v586=shared._combatSettings.teleportUp;v587=(v584.Position + Vector3.new(0 -0 ,v586,1086 -(686 + 400) )) -(v584.CFrame.LookVector * v585) ;v583=2 + 0 ;end if (v583==2) then v149(v548,CFrame.new(v587,v584.Position));break;end end end end end if ( not shared._combatSettings.teleportOn and shared._combatSettings.dodge and v152) then local v497=0;local v498;while true do if (0==v497) then v498=v1.Character;if (v498 and v498:FindFirstChild("HumanoidRootPart")) then local v602=v498.HumanoidRootPart;v149(v498,CFrame.new(v152,v152 + v602.CFrame.LookVector ));v152=nil;end break;end end end break;end if (v275==2) then v278= not v276 or  not v277 or (v277.Health<=(229 -(73 + 156))) or  not v276:FindFirstChild("HumanoidRootPart") ;v279=v156();v275=1 + 2 ;end if (v275==3) then if (shared._combatSettings.teleportOn and  not v160) then if v278 then local v549=811 -(721 + 90) ;local v550;while true do if (v549==(0 + 0)) then v550=0 -0 ;while true do if (v550==(471 -(224 + 246))) then v161="Dead";v164();v550=2 -0 ;end if (v550==(3 -1)) then return;end if (0==v550) then shared._combatSettings.teleportOn=false;v159=true;v550=1 + 0 ;end end break;end end elseif (v279 and shared._combatSettings.ragdollCheck) then local v588=0 + 0 ;local v589;while true do if (v588==0) then v589=0 + 0 ;while true do if ((0 -0)==v589) then shared._combatSettings.teleportOn=false;v159=true;v589=1;end if (v589==1) then v161="Ragdolled";v164();v589=6 -4 ;end if (v589==(515 -(203 + 310))) then return;end end break;end end end end if v167() then v157=nil;v158=nil;return;end v275=1997 -(1238 + 755) ;end end end);v97();print("Teleporter by Krysan loaded successfully!");
--- ⚠️ WARNING: integrity protected!
---[[
- .____                  ________ ___.    _____                           __                
- |    |    __ _______   \_____  \\_ |___/ ____\_ __  ______ ____ _____ _/  |_  ___________ 
- |    |   |  |  \__  \   /   |   \| __ \   __\  |  \/  ___// ___\\__  \\   __\/  _ \_  __ \
- |    |___|  |  // __ \_/    |    \ \_\ \  | |  |  /\___ \\  \___ / __ \|  | (  <_> )  | \/
- |_______ \____/(____  /\_______  /___  /__| |____//____  >\___  >____  /__|  \____/|__|   
-         \/          \/         \/    \/                \/     \/     \/                   
-          \_Welcome to LuaObfuscator.com   (Alpha 0.10.9) ~  Much Love, Ferib 
+local Players = game:GetService("Players")
+local lp = Players.LocalPlayer
+local RunService = game:GetService("RunService")
 
-]]--
+shared._combatSettings = shared._combatSettings or {
+    teleportOn = false,
+    teamCheck = false,
+    ragdollCheck = false,
+    lockTarget = false,
+    friendCheck = false,
+    dodge = false,
+    oneTimeKill = false,
+    lowestHealth = false,
+    teleportDistance = 4,
+    teleportUp = 2,
+    targetName = "",
+}
+shared._combatGuiRefs = {}
+
+shared._animationDetection = {
+    enabled = true,
+    autoEscape = false,
+    animationIds = {13927612951, 15128849047},
+    highlightDuration = 5,
+    detectionRange = 70,
+    highlightColor = Color3.fromRGB(255, 165, 0),
+    highlightOutline = Color3.fromRGB(200, 130, 0),
+    activeHighlights = {}
+}
+
+shared._combatSettings.ignoreNames = shared._combatSettings.ignoreNames or {}
+local ignoredNames = shared._combatSettings.ignoreNames
+
+local gui = Instance.new("ScreenGui", game.CoreGui)
+gui.Name = "CombatGUI"
+gui.ResetOnSpawn = false
+
+local wrapper = Instance.new("Frame", gui)
+wrapper.Size = UDim2.new(0, 320, 0, 450)
+wrapper.Position = UDim2.new(0.3, 0, 0.2, 0)
+wrapper.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+wrapper.BorderSizePixel = 0
+wrapper.Active = true
+wrapper.Draggable = true
+Instance.new("UICorner", wrapper).CornerRadius = UDim.new(0, 10)
+Instance.new("UIStroke", wrapper).Color = Color3.fromRGB(60, 60, 60)
+
+local titleBar = Instance.new("Frame", wrapper)
+titleBar.Size = UDim2.new(1, 0, 0, 30)
+titleBar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+titleBar.BorderSizePixel = 0
+Instance.new("UICorner", titleBar).CornerRadius = UDim.new(0, 10)
+
+local title = Instance.new("TextLabel", titleBar)
+title.Size = UDim2.new(1, -40, 1, 0)
+title.Position = UDim2.new(0, 10, 0, 0)
+title.Text = "Teleporter by Krysan"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.BackgroundTransparency = 1
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.TextScaled = true
+
+local tabBar = Instance.new("Frame", wrapper)
+tabBar.Size = UDim2.new(1, 0, 0, 40)
+tabBar.Position = UDim2.new(0, 0, 0, 30)
+tabBar.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+
+local contentFrame = Instance.new("Frame", wrapper)
+contentFrame.Size = UDim2.new(1, 0, 1, -70)
+contentFrame.Position = UDim2.new(0, 0, 0, 70)
+contentFrame.BackgroundTransparency = 1
+
+local Tabs = {}
+local tabCount = 0
+local function createTab(name)
+    local tab = Instance.new("Frame")
+    tab.Size = UDim2.new(1, 0, 1, 0)
+    tab.BackgroundTransparency = 1
+    tab.Visible = false
+    tab.Parent = contentFrame
+
+    local layout = Instance.new("UIListLayout", tab)  
+    layout.Padding = UDim.new(0, 8)  
+    layout.SortOrder = Enum.SortOrder.LayoutOrder  
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Center  
+
+    Tabs[name] = tab  
+
+    local btn = Instance.new("TextButton")  
+    btn.Size = UDim2.new(0.5, -10, 1, -8)  
+    btn.Position = UDim2.new(tabCount * 0.5, 5, 0, 4)  
+    btn.Text = name  
+    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)  
+    btn.TextColor3 = Color3.new(1, 1, 1)  
+    btn.TextScaled = true  
+    btn.Parent = tabBar  
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)  
+
+    btn.MouseButton1Click:Connect(function()  
+        for _, t in pairs(Tabs) do t.Visible = false end  
+        tab.Visible = true  
+    end)  
+
+    tabCount += 1  
+    return tab
+end
+
+local mainTab = createTab("Main")
+local settingsTab = createTab("Settings")
+mainTab.Visible = true
+
+local function createButton(tab, label, color)
+    local btn = Instance.new("TextButton", tab)
+    btn.Size = UDim2.new(1, -20, 0, 35)
+    btn.Text = label
+    btn.BackgroundColor3 = color or Color3.fromRGB(60, 60, 60)
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.TextScaled = true
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    Instance.new("UIStroke", btn).Color = Color3.fromRGB(80, 80, 80)
+    return btn
+end
+
+local toggleButtons = {}
+
+local function createToggle(tab, label, key)
+    local btn = createButton(tab, label .. ": Off", Color3.fromRGB(60, 60, 60))
+    
+    toggleButtons[key] = {btn = btn, label = label}
+    
+    btn.MouseButton1Click:Connect(function()
+        shared._combatSettings[key] = not shared._combatSettings[key]
+        btn.Text = label .. ": " .. (shared._combatSettings[key] and "On" or "Off")
+        btn.BackgroundColor3 = shared._combatSettings[key] and Color3.fromRGB(80, 120, 80) or Color3.fromRGB(60, 60, 60)
+    end)
+    return btn
+end
+
+local function initializeToggleButtons()
+    for key, data in pairs(toggleButtons) do
+        local currentState = shared._combatSettings[key]
+        data.btn.Text = data.label .. ": " .. (currentState and "On" or "Off")
+        data.btn.BackgroundColor3 = currentState and Color3.fromRGB(80, 120, 80) or Color3.fromRGB(60, 60, 60)
+    end
+end
+
+local function removeAnimationHighlight(player)
+    if not player then return end
+    
+    if player.Character then
+        local hl = player.Character:FindFirstChild("ANIM_HL")
+        if hl then 
+            hl:Destroy()
+        end
+        
+        local warning = player.Character:FindFirstChild("ANIM_WARNING")
+        if warning then 
+            warning:Destroy()
+        end
+    end
+    
+    shared._animationDetection.activeHighlights[player.Name] = nil
+end
+
+local function createAnimationHighlight(player)
+    if not player or not player.Character then return nil end
+    
+    -- Check if highlight already exists
+    local existingHighlight = player.Character:FindFirstChild("ANIM_HL")
+    if existingHighlight then
+        return existingHighlight
+    end
+    
+    removeAnimationHighlight(player)
+    
+    task.wait(0.01)
+    
+    local primaryPart = player.Character.PrimaryPart or player.Character:FindFirstChild("HumanoidRootPart")
+    if not primaryPart then return nil end
+    
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "ANIM_HL"
+    highlight.Adornee = player.Character
+    highlight.Parent = player.Character
+    highlight.FillTransparency = 0.3
+    highlight.OutlineTransparency = 0
+    highlight.FillColor = shared._animationDetection.highlightColor
+    highlight.OutlineColor = shared._animationDetection.highlightOutline
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "ANIM_WARNING"
+    billboard.Size = UDim2.new(0, 100, 0, 100)
+    billboard.StudsOffset = Vector3.new(0, 4, 0)
+    billboard.AlwaysOnTop = true
+    billboard.MaxDistance = 200
+    billboard.Enabled = true
+    billboard.Adornee = primaryPart
+    billboard.Parent = player.Character
+    
+    local emoji = Instance.new("TextLabel")
+    emoji.Size = UDim2.new(1, 0, 1, 0)
+    emoji.Text = "⚠️"
+    emoji.TextScaled = true
+    emoji.BackgroundTransparency = 1
+    emoji.TextColor3 = Color3.fromRGB(255, 165, 0)
+    emoji.Font = Enum.Font.SourceSansBold
+    emoji.Parent = billboard
+    
+    return highlight
+end
+
+local teleportBtn = createButton(mainTab, "Teleport: Off", Color3.fromRGB(70, 70, 70))
+shared._combatGuiRefs.teleportButton = teleportBtn
+
+local safePlatformBtn = createButton(mainTab, "Teleport to Platform", Color3.fromRGB(80, 120, 200))
+local safePlatformCreated = false
+local safePlatformPart = nil
+local platformPos = Vector3.new(0, -494.5, 0)
+
+local function createSafePlatform()
+    if not safePlatformCreated then
+        safePlatformPart = Instance.new("Part")
+        safePlatformPart.Name = "SafePlatform_Lio"
+        safePlatformPart.Size = Vector3.new(1000, 2, 1000)
+        safePlatformPart.Position = Vector3.new(0, -500, 0)
+        safePlatformPart.Anchored = true
+        safePlatformPart.CanCollide = true
+        safePlatformPart.Transparency = 0.5
+        safePlatformPart.Color = Color3.fromRGB(0, 170, 255)
+        safePlatformPart.Parent = workspace
+        
+        safePlatformCreated = true
+        return true
+    end
+    return false
+end
+
+local function fixCameraSubject()
+    local camera = workspace.CurrentCamera
+    local char = lp.Character
+    
+    if not char then return false end
+    
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    if not humanoid then return false end
+    
+    -- Check if camera is following wrong subject
+    if camera.CameraSubject == nil or camera.CameraSubject.Parent == nil then
+        camera.CameraSubject = humanoid
+        return true
+    elseif not (camera.CameraSubject:IsA("Humanoid") and camera.CameraSubject.Parent == char) then
+        camera.CameraSubject = humanoid
+        return true
+    end
+    
+    return false
+end
+
+safePlatformBtn.MouseButton1Click:Connect(function()
+    if not safePlatformCreated then
+        safePlatformPart = Instance.new("Part")
+        safePlatformPart.Name = "SafePlatform_Lio"
+        safePlatformPart.Size = Vector3.new(1000, 2, 1000)
+        safePlatformPart.Position = Vector3.new(0, -500, 0)
+        safePlatformPart.Anchored = true
+        safePlatformPart.CanCollide = true
+        safePlatformPart.Transparency = 0.5
+        safePlatformPart.Color = Color3.fromRGB(0, 170, 255)
+        safePlatformPart.Parent = workspace
+        
+        safePlatformCreated = true
+        safePlatformBtn.Text = "Platform Created"
+        safePlatformBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+        
+        task.wait(2)
+        safePlatformBtn.Text = "Teleport to Platform"
+        safePlatformBtn.BackgroundColor3 = Color3.fromRGB(80, 120, 200)
+        return
+    end
+    
+    if shared._combatSettings.teleportOn then
+        shared._combatSettings.teleportOn = false
+        teleportBtn.Text = "Teleport: Off"
+        teleportBtn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    end
+    
+    task.wait(0.1)
+    
+    local char = lp.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        if char.PrimaryPart == nil then
+            char.PrimaryPart = char.HumanoidRootPart
+        end
+        
+        safePlatformBtn.Text = "Teleporting..."
+        safePlatformBtn.BackgroundColor3 = Color3.fromRGB(200, 100, 0)
+        
+        char:SetPrimaryPartCFrame(CFrame.new(platformPos))
+        
+        local hrp = char.HumanoidRootPart
+        
+        for _, child in pairs(char:GetDescendants()) do
+            if child:IsA("BodyVelocity") or child:IsA("BodyAngularVelocity") or 
+               child:IsA("BodyForce") or child:IsA("BodyThrust") then
+                child:Destroy()
+            end
+        end
+        
+        if hrp:IsA("BasePart") then
+            hrp.Velocity = Vector3.new(0, 0, 0)
+            hrp.RotVelocity = Vector3.new(0, 0, 0)
+            hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+            hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+        end
+        
+        task.wait(0.05)
+        if hrp:IsA("BasePart") then
+            hrp.Velocity = Vector3.new(0, 0, 0)
+            hrp.RotVelocity = Vector3.new(0, 0, 0)
+        end
+        
+        fixCameraSubject()
+        
+        safePlatformBtn.Text = "Teleported Successfully!"
+        safePlatformBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 0)
+    else
+        safePlatformBtn.Text = "No Character!"
+        safePlatformBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+    end
+    
+    task.wait(2)
+    safePlatformBtn.Text = "Teleport to Platform"
+    safePlatformBtn.BackgroundColor3 = Color3.fromRGB(80, 120, 200)
+end)
+
+local goToFriendBtn = createButton(mainTab, "Go to Friend", Color3.fromRGB(80, 120, 200))
+local currentFriendIndex = 0
+local friendList = {}
+
+local function updateFriendList()
+    friendList = {}
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= lp and lp:IsFriendsWith(player.UserId) then
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid and humanoid.Health > 0 then
+                    table.insert(friendList, player)
+                end
+            end
+        end
+    end
+end
+
+goToFriendBtn.MouseButton1Click:Connect(function()
+    if shared._combatSettings.teleportOn then
+        shared._combatSettings.teleportOn = false
+        teleportBtn.Text = "Teleport: Off"
+        teleportBtn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    end
+    
+    updateFriendList()
+    
+    if #friendList == 0 then
+        goToFriendBtn.Text = "No Friends Online!"
+        goToFriendBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+        task.wait(2)
+        goToFriendBtn.Text = "Go to Friend"
+        goToFriendBtn.BackgroundColor3 = Color3.fromRGB(80, 120, 200)
+        return
+    end
+    
+    currentFriendIndex = (currentFriendIndex % #friendList) + 1
+    local selectedFriend = friendList[currentFriendIndex]
+    
+    task.wait(0.1)
+    
+    local char = lp.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        if char.PrimaryPart == nil then
+            char.PrimaryPart = char.HumanoidRootPart
+        end
+        
+        local hrp = char.HumanoidRootPart
+        if hrp:IsA("BasePart") then
+            hrp.Velocity = Vector3.new(0, 0, 0)
+            hrp.RotVelocity = Vector3.new(0, 0, 0)
+        end
+        
+        local friendPos = selectedFriend.Character.HumanoidRootPart.Position
+        local offset = Vector3.new(0, 3, 0)
+        local targetPos = friendPos + offset
+        
+        char:SetPrimaryPartCFrame(CFrame.new(targetPos))
+        
+        task.wait(0.05)
+        if hrp:IsA("BasePart") then
+            hrp.Velocity = Vector3.new(0, 0, 0)
+            hrp.RotVelocity = Vector3.new(0, 0, 0)
+        end
+        
+        fixCameraSubject()
+        
+        goToFriendBtn.Text = "Teleported to " .. selectedFriend.Name .. " (" .. currentFriendIndex .. "/" .. #friendList .. ")"
+        goToFriendBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+    else
+        goToFriendBtn.Text = "No Character!"
+        goToFriendBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+    end
+    
+    task.wait(3)
+    goToFriendBtn.Text = "Go to Friend"
+    goToFriendBtn.BackgroundColor3 = Color3.fromRGB(80, 120, 200)
+end)
+
+local resetBtn = createButton(mainTab, "Reset Character", Color3.fromRGB(150, 50, 50))
+resetBtn.MouseButton1Click:Connect(function()
+    local hum = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid")
+    if hum then hum.Health = 0 end
+end)
+
+local targeterBox = Instance.new("TextBox", mainTab)
+targeterBox.Size = UDim2.new(1, -20, 0, 35)
+targeterBox.Text = ""
+targeterBox.PlaceholderText = "Targeter (Username or DisplayName)"
+targeterBox.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+targeterBox.TextColor3 = Color3.new(1, 1, 1)
+targeterBox.PlaceholderColor3 = Color3.fromRGB(180, 180, 180)
+targeterBox.TextScaled = true
+targeterBox.ClearTextOnFocus = false
+Instance.new("UICorner", targeterBox).CornerRadius = UDim.new(0, 6)
+Instance.new("UIStroke", targeterBox).Color = Color3.fromRGB(100, 100, 100)
+targeterBox.FocusLost:Connect(function()
+    shared._combatSettings.targetName = targeterBox.Text
+end)
+
+local ignoreInput = Instance.new("TextBox", mainTab)
+ignoreInput.Size = UDim2.new(1, -20, 0, 35)
+ignoreInput.PlaceholderText = "Enter name to ignore"
+ignoreInput.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+ignoreInput.TextColor3 = Color3.new(1, 1, 1)
+ignoreInput.PlaceholderColor3 = Color3.fromRGB(180, 180, 180)
+ignoreInput.TextScaled = true
+Instance.new("UICorner", ignoreInput).CornerRadius = UDim.new(0, 6)
+Instance.new("UIStroke", ignoreInput).Color = Color3.fromRGB(80, 80, 80)
+
+local ignoreListFrame = Instance.new("Frame", mainTab)
+ignoreListFrame.Size = UDim2.new(1, -20, 0, 100)
+ignoreListFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+Instance.new("UICorner", ignoreListFrame).CornerRadius = UDim.new(0, 6)
+Instance.new("UIStroke", ignoreListFrame).Color = Color3.fromRGB(60, 60, 60)
+local listLayout = Instance.new("UIListLayout", ignoreListFrame)
+listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+listLayout.Padding = UDim.new(0, 3)
+
+local function updateIgnoreUI()
+    for _, child in ipairs(ignoreListFrame:GetChildren()) do
+        if child:IsA("TextButton") then child:Destroy() end
+    end
+    for _, name in ipairs(ignoredNames) do
+        local btn = createButton(ignoreListFrame, name, Color3.fromRGB(80, 40, 40))
+        btn.Size = UDim2.new(1, -10, 0, 25)
+        btn.TextScaled = true
+        btn.MouseButton1Click:Connect(function()
+            for i, v in ipairs(ignoredNames) do
+                if v == name then
+                    table.remove(ignoredNames, i)
+                    updateIgnoreUI()
+                    break
+                end
+            end
+        end)
+    end
+end
+
+ignoreInput.FocusLost:Connect(function()
+    local name = ignoreInput.Text
+    if name == "" then return end
+    if not table.find(ignoredNames, name) then
+        table.insert(ignoredNames, name)
+        updateIgnoreUI()
+    end
+    ignoreInput.Text = ""
+end)
+
+Players.PlayerRemoving:Connect(function(player)
+    for i = #ignoredNames, 1, -1 do
+        if ignoredNames[i] == player.Name then
+            table.remove(ignoredNames, i)
+            updateIgnoreUI()
+        end
+    end
+end)
+
+createToggle(settingsTab, "Team Check", "teamCheck")
+createToggle(settingsTab, "Friend Check", "friendCheck")
+createToggle(settingsTab, "Ragdoll Check", "ragdollCheck")
+createToggle(settingsTab, "Dodge", "dodge")
+createToggle(settingsTab, "Lock Target", "lockTarget")
+createToggle(settingsTab, "One Time Kill", "oneTimeKill")
+createToggle(settingsTab, "Lowest Health", "lowestHealth")
+
+local omniDetectBtn = createButton(settingsTab, "Ults Detector: On", Color3.fromRGB(80, 120, 80))
+local escapeOmniBtn = createButton(settingsTab, "Escape Ults: Off", Color3.fromRGB(120, 80, 80))
+
+omniDetectBtn.MouseButton1Click:Connect(function()
+    shared._animationDetection.enabled = not shared._animationDetection.enabled
+    omniDetectBtn.Text = "Ults Detector: " .. (shared._animationDetection.enabled and "On" or "Off")
+    omniDetectBtn.BackgroundColor3 = shared._animationDetection.enabled and Color3.fromRGB(80, 120, 80) or Color3.fromRGB(60, 60, 60)
+    
+    if not shared._animationDetection.enabled then
+        for playerName, data in pairs(shared._animationDetection.activeHighlights) do
+            local player = Players:FindFirstChild(playerName)
+            if player then
+                removeAnimationHighlight(player)
+            end
+        end
+        shared._animationDetection.activeHighlights = {}
+    end
+end)
+
+escapeOmniBtn.MouseButton1Click:Connect(function()
+    shared._animationDetection.autoEscape = not shared._animationDetection.autoEscape
+    escapeOmniBtn.Text = "Escape Ults: " .. (shared._animationDetection.autoEscape and "On" or "Off")
+    escapeOmniBtn.BackgroundColor3 = shared._animationDetection.autoEscape and Color3.fromRGB(120, 80, 80) or Color3.fromRGB(60, 60, 60)
+end)
+
+initializeToggleButtons()
+
+local miniWrapper = Instance.new("Frame", gui)
+miniWrapper.Size = UDim2.new(0, 240, 0, 45)
+miniWrapper.Position = UDim2.new(0.65, 0, 0.2, 0)
+miniWrapper.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+miniWrapper.BorderSizePixel = 0
+miniWrapper.Active = true
+miniWrapper.Draggable = true
+Instance.new("UICorner", miniWrapper).CornerRadius = UDim.new(0, 8)
+Instance.new("UIStroke", miniWrapper).Color = Color3.fromRGB(60, 60, 60)
+
+shared._combatSettings.teleportDistance = shared._combatSettings.teleportDistance or 4
+shared._combatSettings.teleportUp = shared._combatSettings.teleportUp or 2
+
+local spotBtn = Instance.new("TextButton", miniWrapper)
+spotBtn.Size = UDim2.new(1, -10, 1, -10)
+spotBtn.Position = UDim2.new(0, 5, 0, 5)
+spotBtn.Text = "Position: Risky"
+spotBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+spotBtn.TextColor3 = Color3.new(1, 1, 1)
+spotBtn.TextScaled = true
+Instance.new("UICorner", spotBtn).CornerRadius = UDim.new(0, 6)
+Instance.new("UIStroke", spotBtn).Color = Color3.fromRGB(80, 80, 80)
+
+local function toggleSpot()
+    if spotBtn.Text == "Position: Risky" then
+        shared._combatSettings.teleportDistance = 0
+        shared._combatSettings.teleportUp = 30
+        spotBtn.Text = "Position: Safe"
+        spotBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+    else
+        shared._combatSettings.teleportDistance = 4
+        shared._combatSettings.teleportUp = 2
+        spotBtn.Text = "Position: Risky"
+        spotBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+    end
+end
+
+spotBtn.MouseButton1Click:Connect(toggleSpot)
+
+wrapper:GetPropertyChangedSignal("Visible"):Connect(function()
+    miniWrapper.Visible = wrapper.Visible
+end)
+miniWrapper.Visible = wrapper.Visible
+
+local closeBtn = Instance.new("TextButton", wrapper)
+closeBtn.Size = UDim2.new(0, 25, 0, 25)
+closeBtn.Position = UDim2.new(1, -30, 0, 2)
+closeBtn.Text = "✖"
+closeBtn.TextColor3 = Color3.new(1, 0.3, 0.3)
+closeBtn.BackgroundColor3 = Color3.fromRGB(60, 0, 0)
+closeBtn.TextScaled = true
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 6)
+
+local reopenBtn = Instance.new("TextButton", gui)
+reopenBtn.Size = UDim2.new(0, 100, 0, 35)
+reopenBtn.Position = UDim2.new(0, 10, 0, 10)
+reopenBtn.Text = "Open GUI"
+reopenBtn.BackgroundColor3 = Color3.fromRGB(0, 80, 0)
+reopenBtn.TextColor3 = Color3.new(1, 1, 1)
+reopenBtn.TextScaled = true
+reopenBtn.Visible = false
+Instance.new("UICorner", reopenBtn).CornerRadius = UDim.new(0, 6)
+Instance.new("UIStroke", reopenBtn).Color = Color3.fromRGB(0, 120, 0)
+
+closeBtn.MouseButton1Click:Connect(function()
+    wrapper.Visible = false
+    miniWrapper.Visible = false
+    reopenBtn.Visible = true
+end)
+
+reopenBtn.MouseButton1Click:Connect(function()
+    wrapper.Visible = true
+    miniWrapper.Visible = true
+    reopenBtn.Visible = false
+end)
+
+local function monitorPlayerAnimations(player)
+    local lastCheck = 0
+    local checkInterval = 0.1
+    
+    local function checkPlayerAnimations()
+        if not shared._animationDetection.enabled then return end
+        
+        local currentTime = tick()
+        if currentTime - lastCheck < checkInterval then return end
+        lastCheck = currentTime
+        
+        if not player or not player.Character then 
+            removeAnimationHighlight(player)
+            return 
+        end
+        
+        local primaryPart = player.Character.PrimaryPart or player.Character:FindFirstChild("HumanoidRootPart")
+        if not primaryPart then 
+            removeAnimationHighlight(player)
+            return 
+        end
+        
+        if not primaryPart:IsDescendantOf(workspace) then
+            removeAnimationHighlight(player)
+            return
+        end
+        
+        local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+        if not humanoid then 
+            removeAnimationHighlight(player)
+            return 
+        end
+        
+        local animator = humanoid:FindFirstChildOfClass("Animator")
+        if not animator then 
+            removeAnimationHighlight(player)
+            return 
+        end
+        
+        local foundOmni = false
+        
+        for _, track in pairs(animator:GetPlayingAnimationTracks()) do
+            local anim = track.Animation
+            if anim then
+                local animId = tonumber(anim.AnimationId:match("%d+"))
+                if animId and table.find(shared._animationDetection.animationIds, animId) then
+                    foundOmni = true
+                    break
+                end
+            end
+        end
+        
+        if foundOmni then
+            if not shared._animationDetection.activeHighlights[player.Name] then
+                shared._animationDetection.activeHighlights[player.Name] = {
+                    endTime = tick() + shared._animationDetection.highlightDuration,
+                    firstDetected = tick()
+                }
+                createAnimationHighlight(player)
+            else
+                shared._animationDetection.activeHighlights[player.Name].endTime = tick() + shared._animationDetection.highlightDuration
+                
+                local highlight = player.Character:FindFirstChild("ANIM_HL")
+                if highlight then
+                    highlight.FillTransparency = 0.3
+                    highlight.OutlineTransparency = 0
+                end
+                
+                local warning = player.Character:FindFirstChild("ANIM_WARNING")
+                if warning then
+                    warning.Enabled = true
+                end
+            end
+        elseif shared._animationDetection.activeHighlights[player.Name] then
+            if tick() > shared._animationDetection.activeHighlights[player.Name].endTime then
+                removeAnimationHighlight(player)
+            end
+        end
+    end
+    
+    local connection = RunService.Heartbeat:Connect(checkPlayerAnimations)
+    
+    player.CharacterAdded:Connect(function()
+        removeAnimationHighlight(player)
+    end)
+    
+    player.CharacterRemoving:Connect(function()
+        removeAnimationHighlight(player)
+    end)
+    
+    player.AncestryChanged:Connect(function()
+        if not player:IsDescendantOf(game) then
+            if connection then
+                connection:Disconnect()
+            end
+            removeAnimationHighlight(player)
+        end
+    end)
+end
+
+for _, player in ipairs(Players:GetPlayers()) do
+    monitorPlayerAnimations(player)
+end
+
+Players.PlayerAdded:Connect(function(player)
+    task.wait(1)
+    monitorPlayerAnimations(player)
+end)
+
+local friendCache = {}
+local function updateFriendCache()
+    friendCache = {}
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= lp and lp:IsFriendsWith(plr.UserId) then
+            friendCache[plr.Name] = true
+        end
+    end
+end
+
+updateFriendCache()
+
+Players.PlayerAdded:Connect(function(plr)
+    task.wait(1)
+    if lp:IsFriendsWith(plr.UserId) then
+        friendCache[plr.Name] = true
+    end
+end)
+
+Players.PlayerRemoving:Connect(function(plr)
+    friendCache[plr.Name] = nil
+end)
+
+local function isValidTarget(plr)
+    if plr then
+        if plr == lp then return false end
+        
+        if shared._combatSettings.friendCheck and friendCache[plr.Name] then 
+            return false 
+        end
+        
+        if shared._combatSettings.teamCheck and plr.Team == lp.Team then 
+            return false 
+        end
+        
+        local targetName = shared._combatSettings.targetName or ""
+        if targetName and #targetName > 0 then
+            local nameMatch = plr.Name:lower():find(targetName:lower(), 1, true) or 
+                             (plr.DisplayName and plr.DisplayName:lower():find(targetName:lower(), 1, true))
+            if not nameMatch then
+                return false
+            end
+        end
+        
+        if not plr.Character or not plr.Character:FindFirstChild("HumanoidRootPart") then 
+            return false 
+        end
+        
+        local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+        if not hum or hum.Health <= 0 then 
+            return false 
+        end
+
+        for _, ignored in ipairs(ignoredNames) do  
+            local ignoredLower = ignored:lower()  
+            if plr.Name:lower():find(ignoredLower, 1, true) or (plr.DisplayName and plr.DisplayName:lower():find(ignoredLower, 1, true)) then  
+                return false  
+            end  
+        end  
+        
+        return true
+    end
+    return false
+end
+
+local function findNearestEnemy()
+    local closest, dist = nil, math.huge
+    local myPos = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") and lp.Character.HumanoidRootPart.Position
+    
+    if not myPos then return nil end
+    
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if isValidTarget(plr) then
+            local d = (myPos - plr.Character.HumanoidRootPart.Position).Magnitude
+            if d < dist then
+                closest = plr
+                dist = d
+            end
+        end
+    end
+    
+    return closest
+end
+
+local function findLowestHealthEnemy()
+    local lowest, minHealth = nil, math.huge
+    local myPos = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") and lp.Character.HumanoidRootPart.Position
+    
+    if not myPos then return nil end
+    
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if isValidTarget(plr) then
+            local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+            if hum and hum.Health < minHealth then
+                lowest = plr
+                minHealth = hum.Health
+            end
+        end
+    end
+    
+    return lowest
+end
+
+local function findPlayerByName(name)
+    name = name:lower()
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= lp then
+            if plr.Name:lower():find(name,1,true) or (plr.DisplayName and plr.DisplayName:lower():find(name,1,true)) then
+                return plr
+            end
+        end
+    end
+    return nil
+end
+
+local function hasValidTargets()
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if isValidTarget(plr) then
+            return true
+        end
+    end
+    
+    return false
+end
+
+local function moveEntireCharacter(char, targetCFrame)
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        if char.PrimaryPart == nil then
+            char.PrimaryPart = char.HumanoidRootPart
+        end
+        
+        char:SetPrimaryPartCFrame(targetCFrame)
+    end
+end
+
+local dodgeBoost = 50
+local lastHealth = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") and lp.Character:FindFirstChildOfClass("Humanoid").Health or 100
+local dodgePosition = nil
+local dodgeTimer = 0
+local originalDistance = shared._combatSettings.teleportDistance
+
+local function onHealthChanged(newHealth)
+    if not shared._combatSettings.dodge then return end
+    if newHealth < lastHealth then
+        local char = lp.Character
+        if char and char:FindFirstChild("HumanoidRootPart") then
+            if shared._combatSettings.teleportOn then
+                dodgeTimer = 1.5
+                shared._combatSettings.teleportDistance = originalDistance + dodgeBoost
+            else
+                local hrp = char.HumanoidRootPart
+                dodgePosition = hrp.Position - hrp.CFrame.LookVector * dodgeBoost
+                task.delay(1.5, function()
+                    dodgePosition = nil
+                end)
+            end
+        end
+    end
+    lastHealth = newHealth
+end
+
+lp.CharacterAdded:Connect(function(char)
+    local hum = char:WaitForChild("Humanoid")
+    lastHealth = hum.Health
+    hum.HealthChanged:Connect(onHealthChanged)
+end)
+
+if lp.Character then
+    local hum = lp.Character:FindFirstChildOfClass("Humanoid")
+    if hum then
+        lastHealth = hum.Health
+        hum.HealthChanged:Connect(onHealthChanged)
+    end
+end
+
+local function isRagdolled()
+    local char = lp.Character
+    if not char then return false end
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if hum then
+        if hum:GetState() == Enum.HumanoidStateType.Physics then return true end
+        if hum.PlatformStand then return true end
+    end
+    for _, v in pairs(char:GetChildren()) do
+        if tostring(v.Name):lower():find("ragdoll") then return true end
+    end
+    return false
+end
+
+local currentTarget = nil
+local trackedTarget = nil
+local autoDisabled = false
+local manualOff = false
+local teleportStatusReason = nil
+local userRecentlyEnabled = false
+local userEnableTime = 0
+
+local function updateTeleportButton()
+    if teleportStatusReason then
+        teleportBtn.Text = "Teleport: Off ("..teleportStatusReason..")"
+        teleportBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+    else
+        teleportBtn.Text = "Teleport: "..(shared._combatSettings.teleportOn and "On" or "Off")
+        teleportBtn.BackgroundColor3 = shared._combatSettings.teleportOn and Color3.fromRGB(80, 120, 80) or Color3.fromRGB(70, 70, 70)
+    end
+end
+
+teleportBtn.MouseButton1Click:Connect(function()
+    if teleportStatusReason then
+        teleportStatusReason = nil
+        shared._combatSettings.teleportOn = true
+        manualOff = false
+        autoDisabled = false
+        userRecentlyEnabled = true
+        userEnableTime = tick()
+        updateTeleportButton()
+        
+        trackedTarget = selectTarget()
+        currentTarget = trackedTarget
+    else
+        shared._combatSettings.teleportOn = not shared._combatSettings.teleportOn
+        manualOff = not shared._combatSettings.teleportOn
+        
+        if shared._combatSettings.teleportOn then
+            userRecentlyEnabled = true
+            userEnableTime = tick()
+        else
+            userRecentlyEnabled = false
+        end
+        
+        updateTeleportButton()
+        
+        if not shared._combatSettings.teleportOn then
+            currentTarget = nil
+            trackedTarget = nil
+        end
+    end
+end)
+
+lp.CharacterAdded:Connect(function()
+    teleportStatusReason = nil
+    manualOff = false
+    updateTeleportButton()
+    updateFriendCache()
+end)
+
+local function selectTarget()
+    local targetName = shared._combatSettings.targetName
+    
+    if targetName and #targetName > 0 then
+        return findPlayerByName(targetName)
+    elseif shared._combatSettings.lowestHealth then
+        return findLowestHealthEnemy()
+    else
+        return findNearestEnemy()
+    end
+end
+
+local function updateAnimationHighlights()
+    if not shared._animationDetection.enabled then return end
+    
+    local currentTime = tick()
+    
+    for playerName, data in pairs(shared._animationDetection.activeHighlights) do
+        if currentTime > data.endTime then
+            local player = Players:FindFirstChild(playerName)
+            if player then
+                removeAnimationHighlight(player)
+            else
+                shared._animationDetection.activeHighlights[playerName] = nil
+            end
+        end
+    end
+    
+    if shared._animationDetection.autoEscape then
+        local myChar = lp.Character
+        if not myChar then return end
+        
+        local myPos = myChar:FindFirstChild("HumanoidRootPart") and myChar.HumanoidRootPart.Position
+        if not myPos then return end
+        
+        for playerName, data in pairs(shared._animationDetection.activeHighlights) do
+            local player = Players:FindFirstChild(playerName)
+            if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local targetPos = player.Character.HumanoidRootPart.Position
+                local distance = (myPos - targetPos).Magnitude
+                
+                if distance <= shared._animationDetection.detectionRange then
+                    local currentTime = tick()
+                    if not data.lastEscapeTime or (currentTime - data.lastEscapeTime) > 3 then
+                        data.lastEscapeTime = currentTime
+                        
+                        if shared._combatSettings.teleportOn then
+                            shared._combatSettings.teleportOn = false
+                            teleportBtn.Text = "Teleport: Off"
+                            teleportBtn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+                        end
+                        
+                        createSafePlatform()
+                        local originalText = safePlatformBtn.Text
+                        safePlatformBtn.Text = "Auto Escaping..."
+                        safePlatformBtn.BackgroundColor3 = Color3.fromRGB(200, 100, 0)
+                        
+                        task.wait(0.1)
+                        
+                        local char = lp.Character
+                        if char and char:FindFirstChild("HumanoidRootPart") then
+                            if char.PrimaryPart == nil then
+                                char.PrimaryPart = char.HumanoidRootPart
+                            end
+                            
+                            char:SetPrimaryPartCFrame(CFrame.new(platformPos))
+                            
+                            task.wait(0.05)
+                            
+                            data.endTime = tick() + shared._animationDetection.highlightDuration
+                            
+                            fixCameraSubject()
+                            
+                            safePlatformBtn.Text = "Auto Escaped!"
+                            safePlatformBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 0)
+                            task.wait(2)
+                            safePlatformBtn.Text = originalText
+                            safePlatformBtn.BackgroundColor3 = Color3.fromRGB(80, 120, 200)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+local function checkNoTargets()
+    if shared._combatSettings.teleportOn and not manualOff then
+        if userRecentlyEnabled and (tick() - userEnableTime) < 0.1 then
+            return false
+        end
+        
+        userRecentlyEnabled = false
+        
+        if not hasValidTargets() then
+            if teleportStatusReason ~= "No Target" then
+                teleportStatusReason = "No Target"
+                shared._combatSettings.teleportOn = false
+                updateTeleportButton()
+            end
+            return true
+        end
+    end
+    return false
+end
+
+RunService.Heartbeat:Connect(function()
+    updateAnimationHighlights()
+    
+    if dodgeTimer > 0 then
+        dodgeTimer = math.max(0, dodgeTimer - RunService.Heartbeat:Wait())
+        if dodgeTimer == 0 then
+            shared._combatSettings.teleportDistance = originalDistance
+        end
+    end
+
+    local char = lp.Character  
+    local hum = char and char:FindFirstChildOfClass("Humanoid")  
+    local dead = not char or not hum or hum.Health <= 0 or not char:FindFirstChild("HumanoidRootPart")  
+    local ragdoll = isRagdolled()  
+
+    if shared._combatSettings.teleportOn and not manualOff then  
+        if dead then  
+            shared._combatSettings.teleportOn = false  
+            autoDisabled = true  
+            teleportStatusReason = "Dead"  
+            updateTeleportButton()  
+            return  
+        elseif ragdoll and shared._combatSettings.ragdollCheck then  
+            shared._combatSettings.teleportOn = false  
+            autoDisabled = true  
+            teleportStatusReason = "Ragdolled"  
+            updateTeleportButton()  
+            return  
+        end  
+    end
+    
+    if checkNoTargets() then
+        currentTarget = nil
+        trackedTarget = nil
+        return
+    end
+
+    if shared._combatSettings.teleportOn and not manualOff and hasValidTargets() then  
+        if not trackedTarget then  
+            trackedTarget = selectTarget()  
+        end  
+
+        if shared._combatSettings.oneTimeKill and trackedTarget then  
+            local thum = trackedTarget.Character and trackedTarget.Character:FindFirstChildOfClass("Humanoid")  
+            if not thum or thum.Health <= 0 then  
+                if shared._combatSettings.oneTimeKill then
+                    shared._combatSettings.teleportOn = false  
+                    autoDisabled = true
+                    teleportStatusReason = "Target Down"  
+                    updateTeleportButton()  
+                    currentTarget = nil  
+                    trackedTarget = nil  
+                    return  
+                end
+            end  
+        end  
+
+        if shared._combatSettings.lockTarget then  
+            if trackedTarget and isValidTarget(trackedTarget) then  
+                currentTarget = trackedTarget  
+            else  
+                if not shared._combatSettings.oneTimeKill then  
+                    trackedTarget = selectTarget()  
+                    currentTarget = trackedTarget  
+                end  
+            end  
+        else  
+            if not shared._combatSettings.oneTimeKill then  
+                trackedTarget = selectTarget()  
+                currentTarget = trackedTarget  
+            end  
+        end  
+
+        if currentTarget and currentTarget.Character and currentTarget.Character:FindFirstChild("HumanoidRootPart") then
+            local myChar = lp.Character
+            if myChar and myChar:FindFirstChild("HumanoidRootPart") then  
+                local enemyRootPart = currentTarget.Character.HumanoidRootPart
+                local distance = shared._combatSettings.teleportDistance
+                local upOffset = shared._combatSettings.teleportUp
+                local targetPosition = enemyRootPart.Position + Vector3.new(0, upOffset, 0) - (enemyRootPart.CFrame.LookVector * distance)
+                
+                moveEntireCharacter(myChar, CFrame.new(targetPosition, enemyRootPart.Position))
+            end
+        end
+    end
+
+    if not shared._combatSettings.teleportOn and shared._combatSettings.dodge and dodgePosition then
+        local char = lp.Character
+        if char and char:FindFirstChild("HumanoidRootPart") then
+            local hrp = char.HumanoidRootPart
+            moveEntireCharacter(char, CFrame.new(dodgePosition, dodgePosition + hrp.CFrame.LookVector))
+            dodgePosition = nil
+        end
+    end
+end)
+
+updateIgnoreUI()
+
+print("Teleporter by Krysan loaded successfully!")

@@ -165,7 +165,6 @@ end
 local function createAnimationHighlight(player)
     if not player or not player.Character then return nil end
     
-    -- Check if highlight already exists
     local existingHighlight = player.Character:FindFirstChild("ANIM_HL")
     if existingHighlight then
         return existingHighlight
@@ -208,6 +207,63 @@ local function createAnimationHighlight(player)
     emoji.Parent = billboard
     
     return highlight
+end
+
+local function isCameraStuckAdvanced()
+    local camera = workspace.CurrentCamera
+    local player = game.Players.LocalPlayer
+    local char = player.Character
+    
+    if camera.CameraSubject == nil or camera.CameraSubject.Parent == nil then
+        return true, "No CameraSubject"
+    end
+    
+    if not (camera.CameraSubject:IsA("Humanoid") and camera.CameraSubject.Parent == char) then
+        return true, "Wrong CameraSubject"
+    end
+    
+    if camera.CameraType == Enum.CameraType.Scriptable or camera.CameraType == Enum.CameraType.Fixed then
+        return true, "Locked CameraType"
+    end
+    
+    if camera.Parent ~= workspace then
+        return true, "Wrong Parent"
+    end
+    
+    return false, nil
+end
+
+local function fixCameraIfNeeded()
+    local camera = workspace.CurrentCamera
+    local player = game.Players.LocalPlayer
+    
+    local stuck, reason = isCameraStuckAdvanced()
+    if stuck then
+        local originalType = camera.CameraType
+        local originalSubject = camera.CameraSubject
+        local originalCFrame = camera.CFrame
+        
+        camera.CameraType = Enum.CameraType.Custom
+        camera.CFrame = CFrame.new()
+        
+        if player.Character and player.Character:FindFirstChild("Humanoid") then
+            camera.CameraSubject = player.Character.Humanoid
+        end
+        
+        task.wait(0.1)
+        camera.CameraType = Enum.CameraType.Follow
+        task.wait(0.05)
+        camera.CameraType = Enum.CameraType.Custom
+        
+        return true, reason
+    end
+    
+    return false, nil
+end
+
+local function scheduleCameraFix(delay)
+    task.wait(1)
+    fixCameraIfNeeded()
 end
 
 local teleportBtn = createButton(mainTab, "Teleport: Off", Color3.fromRGB(70, 70, 70))
@@ -267,9 +323,8 @@ local function fixCameraCompletely()
     
     local fixedSomething = false
     
-    -- Fix CameraSubject if wrong
     local currentSubject = camera.CameraSubject
-    
+
     if currentSubject == nil or currentSubject.Parent == nil then
         camera.CameraSubject = humanoid
         fixedSomething = true
@@ -277,25 +332,18 @@ local function fixCameraCompletely()
         camera.CameraSubject = humanoid
         fixedSomething = true
     end
-    
-    -- Reset camera position if too far away
+
     local cameraDistance = (camera.CFrame.Position - hrp.Position).Magnitude
     if cameraDistance > 50 then
-        -- Set to standard 3rd person position
         local lookAt = hrp.Position + Vector3.new(0, 3, 0)
         local offset = Vector3.new(0, 3, -10)
         local newPosition = lookAt + offset
-        
+
         camera.CFrame = CFrame.new(newPosition, lookAt)
         fixedSomething = true
     end
     
     return fixedSomething
-end
-
-local function scheduleCameraFix(delay)
-    task.wait(delay)
-    fixCameraCompletely()
 end
 
 safePlatformBtn.MouseButton1Click:Connect(function()
@@ -1087,7 +1135,7 @@ end
 
 local function checkNoTargets()
     if shared._combatSettings.teleportOn and not manualOff then
-        if userRecentlyEnabled and (tick() - userEnableTime) < 0.1 then
+        if userRecentlyEnabled and (tick() - userEnableTime) < 0.5 then
             return false
         end
         

@@ -21,7 +21,7 @@ shared._animationDetection = {
     enabled = true,
     autoEscape = false,
     animationIds = {13927612951, 15128849047},
-    highlightDuration = 5,
+    highlightDuration = 2,
     detectionRange = 70,
     highlightColor = Color3.fromRGB(255, 165, 0),
     highlightOutline = Color3.fromRGB(200, 130, 0),
@@ -753,7 +753,6 @@ local function monitorPlayerAnimations(player)
                 }
                 createAnimationHighlight(player)
             else
-                shared._animationDetection.activeHighlights[player.Name].endTime = tick() + shared._animationDetection.highlightDuration
                 
                 local highlight = player.Character:FindFirstChild("ANIM_HL")
                 if highlight then
